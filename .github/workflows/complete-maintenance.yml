@@ -1,0 +1,223 @@
+name: Complete requested maintenance
+
+on:
+  pull_request_target:
+    types: [opened, synchronize, reopened]
+    branches: [main]
+
+permissions:
+  contents: write
+
+jobs:
+  complete:
+    if: github.event.pull_request.head.repo.full_name == github.repository && github.event.pull_request.head.ref == 'chore/plugin-index-style-rules'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout target branch
+        uses: actions/checkout@v4
+        with:
+          ref: chore/plugin-index-style-rules
+          fetch-depth: 0
+
+      - name: Apply requested changes
+        shell: bash
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+
+          def replace_once(path, old, new):
+              p = Path(path)
+              text = p.read_text(encoding='utf-8-sig')
+              if old not in text:
+                  raise SystemExit(f'Expected block not found in {path}: {old[:120]!r}')
+              p.write_text(text.replace(old, new, 1), encoding='utf-8')
+
+          # 2 e 3) build-index.py
+          replace_once('scripts/build-index.py',
+              'from collections import defaultdict',
+              'from collections import Counter, defaultdict')
+          replace_once('scripts/build-index.py',
+              '    "constructor", "as", "from", "of", "and", "or", "not", "len", "in",',
+              '    "constructor", "as", "from", "of", "and", "or", "not", "in",')
+          replace_once('scripts/build-index.py',
+              '''    # nome de exibição: variante mais frequente preservando caixa original
+    display = {}
+    for rel, d in info.items():
+        for c in d["calls"]:
+            k = c.lower()
+            if k in sym_files and k not in display:
+                display[k] = c
+''',
+              '''    # nome de exibição: variante mais frequente preservando caixa original.
+    # Counter + desempate alfabético para que a saída não dependa da ordem de
+    # iteração de set (PYTHONHASHSEED), que tornava o arquivo não-determinístico.
+    casings = defaultdict(Counter)
+    for rel, d in info.items():
+        for c in d["calls"]:
+            k = c.lower()
+            if k in sym_files:
+                casings[k][c] += 1
+    display = {
+        k: min(cnt.items(), key=lambda kv: (-kv[1], kv[0]))[0]
+        for k, cnt in casings.items()
+    }
+''')
+
+          # 4) SKILL.md
+          replace_once('SKILL.md', '~909 funções/classes', '~910 funções/classes')
+          replace_once('SKILL.md', '| `TCQuery` / `BeginSql` para SELECT | `FWExecStatement` |',
+                                   '| `TCQuery` / `BeginSql` para SELECT | `FWExecStatement` ⚠️ |')
+          replace_once('SKILL.md',
+              'Divisão de trabalho com skills geradoras de estrutura (MVC, REST, pontos de entrada, queries):',
+              '''> ⚠️ **Alvos modernos ausentes do corpus.** O corpus é educacional e não cobre toda a API atual.
+> `FWExecStatement` não aparece em nenhum dos 995 fontes. Símbolos marcados com ⚠️ nesta tabela são
+> exceção ao passo 5 do protocolo: valide-os no TDN, não no corpus — a ausência aqui não significa
+> que não existem. (`FWTemporaryTable`, `FWLogMsg`, `FWMsExcel` e `FWRest`, esses sim, estão no corpus.)
+
+Divisão de trabalho com skills geradoras de estrutura (MVC, REST, pontos de entrada, queries):''')
+          replace_once('SKILL.md',
+              '## Manutenção',
+              '''## Limitações conhecidas
+
+- Índice gerado por regex sobre chamadas de função, não por parser AdvPL — pode ter falsos negativos
+  em sintaxes incomuns (xCommands, chamadas via macro `&()`).
+- Cerca de metade dos símbolos indexados aparece em **um único fonte**. Existência fica bem
+  estabelecida; confirmação de assinatura, nesses casos, merece uma checagem no TDN.
+- O corpus valida a API do framework, não o comportamento detalhado de cada função.
+
+## Manutenção''')
+
+          # 5) README.md
+          replace_once('README.md', '909 símbolos de framework', '910 símbolos de framework')
+          replace_once('README.md',
+              '''/reload-plugins
+```
+
+Para atualizar depois:''',
+              '''/reload-plugins
+```
+
+> O `SKILL.md` fica na raiz do repositório: o Claude Code v2.1.142+ carrega esse layout
+> automaticamente como plugin de skill única. O `plugin.json` declara `"skills": ["./"]`
+> explicitamente, o que também cobre versões anteriores. Para conferir a instalação:
+> `claude plugin validate ./advpl-exemplos-validados --strict`.
+
+Para atualizar depois:''')
+          replace_once('README.md',
+              '''- A tradução de estilo em `SKILL.md` é apenas ilustrativa — ajuste às regras reais do seu projeto.
+''',
+              '''- A tradução de estilo em `SKILL.md` é apenas ilustrativa — ajuste às regras reais do seu projeto.
+- Cerca de metade dos 910 símbolos indexados aparece em um único fonte: bom para confirmar
+  **existência**, mais fraco para confirmar **assinatura**. Nesses casos, cruze com o TDN.
+- Alvos modernos como `FWExecStatement` não aparecem em nenhum fonte — a skill sinaliza esses
+  casos com ⚠️ para não bloquear o uso deles.
+- O corpus herda binários do repositório original (`escapi.dll`, dois `.rar`, um `.xlsx` de 1,7 MB).
+  `scripts/update-repo.ps1` exclui esses arquivos ao sincronizar.
+''')
+
+          # 6) update-repo.ps1
+          replace_once('scripts/update-repo.ps1',
+              'robocopy $tmpDir $repoDir /MIR /XD ".git" /NFL /NDL /NJH /NJS /NC /NS',
+              '''# /XF: binarios herdados do repo de origem que nao servem para validacao de API
+# e que ninguem quer clonando para dentro de ~\\.claude\\skills (escapi.dll, .rar, planilhas).
+robocopy $tmpDir $repoDir /MIR /XD ".git" /XF "*.dll" "*.exe" "*.rar" "*.zip" "*.xlsx" /NFL /NDL /NJH /NJS /NC /NS''')
+
+          # 7) install-adapters.ps1
+          p = Path('scripts/install-adapters.ps1')
+          text = p.read_text(encoding='utf-8-sig')
+          old_header = '''#   Os dois parametros podem ser combinados.
+param(
+    [string]$ClineWorkspace,
+    [switch]$CodexGlobal
+)'''
+          new_header = '''#   Os dois parametros podem ser combinados.
+#
+# -StyleRules recebe as regras de estilo do projeto. O valor default abaixo e UM EXEMPLO:
+# sao as regras do autor, nao um padrao universal do Protheus. Passe as regras reais do
+# seu time ou use -StyleRules "" para omitir a secao de regras.
+param(
+    [string]$ClineWorkspace,
+    [switch]$CodexGlobal,
+    [string]$StyleRules = @"
+Protheus.ch->TOTVS.ch | ConOut->FWLogMsg | IIF->If/Else | TCQuery/BeginSql->FWExecStatement |
+CriaTrab->FWTemporaryTable | HTTPGet/Post->FWRest | sem UI em transação | sem GetMV em loop |
+User/Static Function (nunca Function) | sempre D_E_L_E_T_ = ' ' e filtro de filial em query.
+"@
+)'''
+          if old_header not in text:
+              raise SystemExit('param block not found in scripts/install-adapters.ps1')
+          text = text.replace(old_header, new_header, 1)
+          old_style = '''O corpus valida EXISTÊNCIA e ASSINATURA; o estilo do projeto (CLAUDE.md) prevalece SEMPRE:
+Protheus.ch->TOTVS.ch | ConOut->FWLogMsg | IIF->If/Else | TCQuery/BeginSql->FWExecStatement |
+CriaTrab->FWTemporaryTable | HTTPGet/Post->FWRest | sem UI em transação | sem GetMV em loop |
+User/Static Function (nunca Function) | sempre D_E_L_E_T_ = ' ' e filtro de filial em query.
+'''
+          new_style = '''O corpus valida EXISTÊNCIA e ASSINATURA; o estilo do projeto (CLAUDE.md) prevalece SEMPRE.
+Tabela de tradução em uso (exemplo — ajuste às regras reais do seu time):
+$StyleRules
+
+Alguns alvos modernos (ex.: FWExecStatement) NÃO existem no corpus. Ausência aqui não prova
+inexistência: valide esses casos no TDN antes de descartar.
+'''
+          if old_style not in text:
+              raise SystemExit('style block not found in scripts/install-adapters.ps1')
+          p.write_text(text.replace(old_style, new_style, 1), encoding='utf-8')
+
+          # 8) .gitattributes
+          Path('.gitattributes').write_text('''# O corpus em assets/repo/ e um snapshot read-only em CP1252. Nenhuma conversao
+# de fim de linha deve ser aplicada no checkout: core.autocrlf=true no Windows
+# reescreveria os 995 fontes e sujaria qualquer diff de update-repo.ps1.
+assets/repo/** -text
+
+# Binarios herdados do corpus original.
+*.dll  binary
+*.rar  binary
+*.xlsx binary
+*.png  binary
+''', encoding='utf-8')
+          PY
+
+      - name: Validate JSON
+        run: python -c "import json;[json.load(open(f)) for f in ['.claude-plugin/plugin.json','.claude-plugin/marketplace.json']];print('JSON OK')"
+
+      - name: Build index and validate expected output
+        shell: bash
+        run: |
+          python scripts/build-index.py | tee /tmp/build1.txt
+          cat > /tmp/expected.txt <<'EOF'
+          OK: 995 fontes varridos
+            catalogo-fontes.md            : 105 arquivos
+            catalogo-maratona.md          : 552 arquivos
+            catalogo-exemplos-projetos.md : 338 arquivos
+            indice-simbolos.md            : 910 simbolos
+          EOF
+          diff -u /tmp/expected.txt /tmp/build1.txt
+          grep -E '^\| `Len` \| 216 \|' references/indice-simbolos.md
+
+      - name: Validate determinism
+        shell: bash
+        run: |
+          grep -v 'Gerado por' references/indice-simbolos.md > /tmp/index1.md
+          python scripts/build-index.py | tee /tmp/build2.txt
+          grep -v 'Gerado por' references/indice-simbolos.md > /tmp/index2.md
+          diff -u /tmp/index1.md /tmp/index2.md
+          echo 'DETERMINISMO OK'
+
+      - name: Protect corpus and show status
+        shell: bash
+        run: |
+          if git diff --name-only main...HEAD -- assets/repo/ | grep -q .; then
+            echo 'ERRO: assets/repo foi alterado'
+            exit 1
+          fi
+          git status --short
+          git diff --stat
+
+      - name: Commit generated changes
+        shell: bash
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add .claude-plugin/plugin.json scripts/build-index.py SKILL.md README.md scripts/update-repo.ps1 scripts/install-adapters.ps1 .gitattributes references/
+          git commit -m 'Aprimorar manifesto, índice e regras da skill'
+          git push origin HEAD:chore/plugin-index-style-rules
