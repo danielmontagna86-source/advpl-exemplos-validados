@@ -1,0 +1,24 @@
+name: Trigger requested maintenance
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  trigger:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+      - name: Trigger complete workflow
+        shell: bash
+        run: |
+          printf '\n' >> .github/workflows/complete-maintenance.yml
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add .github/workflows/complete-maintenance.yml
+          git commit -m 'ci: acionar manutenção solicitada'
+          git push origin main
