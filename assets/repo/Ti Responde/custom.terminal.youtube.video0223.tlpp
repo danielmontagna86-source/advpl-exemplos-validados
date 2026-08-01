@@ -1,0 +1,60 @@
+/*
+
+    Esse é um exemplo disponibilizado no Terminal de Informação
+    Confira o artigo sobre esse assunto, no seguinte link: https://terminaldeinformacao.com/2026/02/12/como-utilizar-a-classe-txmlmanager-ti-responde-0223/
+
+*/
+
+
+//Bibliotecas
+#Include "tlpp-core.th"
+
+//Declaração da namespace
+Namespace custom.terminal.youtube
+
+//Constantes
+#Define CRLF Chr(13) + Chr(10) //Carriage Return Line Feed
+
+/*/{Protheus.doc} User Function video0223
+Converte uma estrutura em string para um objeto usando TXmlManager
+@type Function
+@author Atilio
+@since 30/04/2025
+@see https://tdn.totvs.com/display/tec/Classe+TXmlManager
+@example custom.terminal.youtube.u_video0223()
+/*/
+
+User Function video0223()
+    Local aArea      := FWGetArea() As Array
+    Local cXML       := ""          As Character
+    Local oXML                      As Object
+    Local cName      := ""          As Character
+    Local lOk        := .T.         As Logical
+
+    //Monta o XML que será convertido em um Objeto
+    cXML := '<?xml version="1.0"?>' + CRLF
+    cXML += '<detalhes>' + CRLF
+    cXML += '  <nome>Atilio</nome>' + CRLF
+    cXML += '  <idade>32</idade>' + CRLF
+    cXML += '  <gostaDeLer>sim</gostaDeLer>' + CRLF
+    cXML += '</detalhes>' + CRLF
+
+    //Transformando o XML (texto) em um objeto
+    oXML := TXmlManager():New()
+    lOk := oXML:Parse( cXML )
+
+    //Se houve alguma falha
+    If ! lOk
+        FWAlertError("Houve um erro na conversão do texto para objeto: " + oXML:Error(), "Falha no 'parse' do XML")
+    Else
+
+        //Se conseguir encontrar a tag nome dentro da tag detalhes
+        If oXML:XPathHasNode("/detalhes/nome")
+            cName := oXML:XPathGetNodeValue("/detalhes/nome")
+            FWAlertSuccess("Encontrou a tag nome dentro da detalhes e o contéudo é: " + cName, "Sucesso")
+        EndIf
+
+    EndIf
+
+    FWRestArea(aArea)
+Return

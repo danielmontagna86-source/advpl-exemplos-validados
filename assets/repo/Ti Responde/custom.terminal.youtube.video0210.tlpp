@@ -1,0 +1,90 @@
+/*
+
+    Esse é um exemplo disponibilizado no Terminal de Informação
+    Confira o artigo sobre esse assunto, no seguinte link: https://terminaldeinformacao.com/2025/12/09/desativar-um-parametro-conforme-conteudo-de-outro-usando-parambox-ti-responde-0210/
+
+*/
+
+
+//Bibliotecas
+#Include "tlpp-core.th"
+
+//Declaração da namespace
+Namespace custom.terminal.youtube
+
+/*/{Protheus.doc} User Function video0210
+Desativando parâmetros num ParamBox
+@type Function
+@author Atilio
+@since 13/09/2024
+@example custom.terminal.youtube.u_video0210()
+/*/
+
+User Function video0210()
+	Local aArea        := FWGetArea()           As Array
+	Local aParameters  := {}                    As Array
+    Local dLastRef     := Date()                As Date
+    Local dInitRef     := DaySub(Date(), 7)     As Date
+    Local dLastDue     := DaySum(Date(), 7)     As Date
+    Local dInitDue     := Date()                As Date
+
+	//Adicionando os parametros do ParamBox
+    aAdd(aParameters, {9, "Digite o tipo abaixo, 1=Pela Emissão, 2=Pelo Vencimento ou 3=Ambos",  200, 20, .T.})
+    aAdd(aParameters, {1, "Tipo",           1,             "@E 9", "Positivo() .And. custom.terminal.youtube.u_valid210Type()", "", ".T.", 80,  .F.})
+	aAdd(aParameters, {1, "Emissão De",     dInitRef,     "",    ".T.",                          "", ".T.", 80,  .F.})
+	aAdd(aParameters, {1, "Emissão Até",    dLastRef,    "",    ".T.",                          "", ".T.", 80,  .F.})
+    aAdd(aParameters, {1, "Vencimento De",  dInitDue,  "",    ".T.",                          "", ".F.", 80,  .F.})
+	aAdd(aParameters, {1, "Vencimento Até", dLastDue, "",    ".T.",                          "", ".F.", 80,  .F.})
+
+	//Se a pergunta for confirmada
+	If ParamBox(aParameters, 'Informe os parâmetros', /*aRet*/, /*bOk*/, /*aButtons*/, /*lCentered*/, /*nPosx*/, /*nPosy*/, /*oDlgWizard*/, /*cLoad*/, .F., .F.)
+        Alert("Em construção...")
+    EndIf
+
+    FWRestArea(aArea)
+Return
+
+/*/{Protheus.doc} User Function valid210Type
+Função acionada ao alternar o ComboBox
+@type  Function
+@author Atilio
+@since 13/09/2024
+/*/
+
+User Function valid210Type()
+    Local lContinue      := .T.                       As Logical
+    Local nCurrent       := 0                         As Numeric
+    Local nType          := MV_PAR02                  As Numeric
+    //Busca a tela e os objetos dentro dela
+    Private nCurrentPvt  := 0                         As Numeric
+    Private oWndDefault  := GetWndDefault()           As Object
+    Private aControls    := oWndDefault:aControls     As Array
+
+    //Percorrendo os objetos criados da tela
+    For nCurrent := 1 To Len(aControls)
+        nAtuPvt := nCurrent
+
+        //Se tiver variável em memória e conteúdo
+        If Type("aControls[nAtuPvt]:cReadVar") != "U" .And. ! Empty(aControls[nAtuPvt]:cReadVar)
+            //Se for do parâmetro 2 ao 5
+            If aControls[nAtuPvt]:cReadVar + ";" $ "MV_PAR03;MV_PAR04;MV_PAR05;MV_PAR06;"
+                //Deixa desabilitado os campos
+                aControls[nCurrent]:bWhen := {|| .F.}
+
+                //Se o filtro for por Emissão e for o parâmetro 2 (Emissão De) ou o parâmetro 3 (Emissão Até)
+                If nType == 1 .And. aControls[nAtuPvt]:cReadVar + ";" $ "MV_PAR03;MV_PAR04;
+                    aControls[nCurrent]:bWhen := {|| .T.}
+
+                //Se o filtro for por Vencimento e for o parâmetro 4 (Vencimento De) ou o parâmetro 5 (Vencimento Até)
+                ElseIf nType == 2 .And. aControls[nAtuPvt]:cReadVar + ";" $ "MV_PAR05;MV_PAR06;
+                    aControls[nCurrent]:bWhen := {|| .T.}
+
+                //Se o filtro for Ambos
+                ElseIf nType == 3
+                    aControls[nCurrent]:bWhen := {|| .T.}
+                EndIf
+            EndIf
+        EndIf
+    Next
+
+Return lContinue

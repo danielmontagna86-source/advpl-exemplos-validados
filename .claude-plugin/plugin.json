@@ -1,0 +1,13 @@
+{
+  "name": "advpl-exemplos-validados",
+  "description": "Corpus local de ~995 fontes AdvPL/TLPP reais (dan-atilio/AdvPL) para validar existência e assinatura de funções/classes do Protheus antes de gerar código com IA, evitando alucinação de API.",
+  "version": "1.0.0",
+  "author": {
+    "name": "Daniel Montagna",
+    "url": "https://github.com/danielmontagna86-source"
+  },
+  "homepage": "https://github.com/danielmontagna86-source/advpl-exemplos-validados",
+  "repository": "https://github.com/danielmontagna86-source/advpl-exemplos-validados",
+  "license": "MIT",
+  "keywords": ["advpl", "tlpp", "protheus", "totvs", "anti-hallucination", "code-validation"]
+}

@@ -1,0 +1,204 @@
+/*
+
+    Esse é um exemplo disponibilizado no Terminal de Informação
+    Confira o artigo sobre esse assunto, no seguinte link: https://terminaldeinformacao.com/2026/01/01/criando-duas-abas-em-um-excel-usando-a-classe-fwmsexcelxlsx-ti-responde-0217/
+
+*/
+
+
+//Bibliotecas
+#Include "tlpp-core.th"
+
+//Declaração da namespace
+Namespace custom.terminal.youtube
+
+#Define CRLF Chr(13) + Chr(10) //Carriage Return Line Feed
+
+/*/{Protheus.doc} User Function video0217
+Excel de Clientes e Fornecedores
+@author Atilio
+@since 22/10/2024
+@version 1.0
+@type function
+@obs Codigo gerado automaticamente pelo Autumn Code Maker
+@see http://autumncodemaker.com
+@example custom.terminal.youtube.u_video0217()
+/*/
+
+User Function video0217()
+	Local aArea          := FWGetArea()                      As Array
+	Local aParameters    := {}                               As Array
+	Local cInitCustomer  := Space(TamSX3("A1_COD")[1])       As Character
+	Local cLastCustomer  := StrTran(cInitCustomer, " ", "Z") As Character
+	Local cInitSupplier  := Space(TamSX3("A2_COD")[1])       As Character
+	Local cLastSupplier  := StrTran(cInitSupplier, " ", "Z") As Character
+
+	//Adicionando os parametros do ParamBox
+	aAdd(aParameters, {1, "Cliente De",     cInitCustomer,      "", ".T.", "SA1", ".T.", 80,  .F.})
+	aAdd(aParameters, {1, "Cliente Até",    cLastCustomer,     "", ".T.", "SA1", ".T.", 80,  .T.})
+	aAdd(aParameters, {1, "Fornecedor De",  cInitSupplier,   "", ".T.", "SA2", ".T.", 80,  .F.})
+	aAdd(aParameters, {1, "Fornecedor Até", cLastSupplier,  "", ".T.", "SA2", ".T.", 80,  .T.})
+
+	//Se a pergunta for confirmada, chama o preenchimento dos dados do .dot
+	If ParamBox(aParameters, 'Informe os parâmetros', /*aRet*/, /*bOk*/, /*aButtons*/, /*lCentered*/, /*nPosx*/, /*nPosy*/, /*oDlgWizard*/, /*cLoad*/, .F., .F.)
+		Processa({|| exportExcel()})
+	EndIf
+
+	FWRestArea(aArea)
+Return
+
+/*/{Protheus.doc} exportExcel
+Criacao do arquivo Excel na funcao video0217
+@author Atilio
+@since 22/10/2024
+@version 1.0
+@type function
+@obs Codigo gerado automaticamente pelo Autumn Code Maker
+@see http://autumncodemaker.com
+/*/
+
+Static Function exportExcel()
+	Local cQuery          := ""                                                                                      As Character
+	Local oFWMsExcel                                                                                                 As Object
+	Local oExcel                                                                                                     As Object
+	Local cFile           := GetTempPath() + 'video0217_' + dToS(Date()) + '_' + StrTran(Time(), ':', '-') + '.xlsx' As Character
+	Local nCurrent        := 0                                                                                       As Numeric
+	Local nTotal          := 0                                                                                       As Numeric
+    //Aba 01 de Clientes
+    Local cWorkSheet01    := "Clientes"                                                                              As Character
+	Local cTitle01        := "Listagem de Clientes"                                                                  As Character
+    //Aba 02 de Fornecedores
+    Local cWorkSheet02    := "Fornecedores"                                                                          As Character
+	Local cTitle02        := "Listagem de Fornecedores"                                                              As Character
+
+	//Cria a planilha do excel
+	oFWMsExcel := FWMsExcelXlsx():New()
+
+	//Criando a aba da planilha (Clientes)
+	oFWMsExcel:AddworkSheet(cWorkSheet01)
+
+        //Criando a Tabela e as colunas
+        oFWMsExcel:AddTable(cWorkSheet01, cTitle01)
+        oFWMsExcel:AddColumn(cWorkSheet01, cTitle01, "Código", 1, 1, .F.)
+        oFWMsExcel:AddColumn(cWorkSheet01, cTitle01, "Nome", 1, 1, .F.)
+        oFWMsExcel:AddColumn(cWorkSheet01, cTitle01, "Nome Fantasia", 1, 1, .F.)
+        oFWMsExcel:AddColumn(cWorkSheet01, cTitle01, "Site", 1, 1, .F.)
+        oFWMsExcel:AddColumn(cWorkSheet01, cTitle01, "eMail", 1, 1, .F.)
+
+        //Montando consulta de dados buscando os clientes
+        cQuery := " SELECT "		+ CRLF
+        cQuery += " A1_COD, "		+ CRLF
+        cQuery += " A1_NOME, "		+ CRLF
+        cQuery += " A1_NREDUZ, "		+ CRLF
+        cQuery += " A1_HPAGE, "		+ CRLF
+        cQuery += " A1_EMAIL "		+ CRLF
+        cQuery += " FROM "		+ CRLF
+        cQuery += "    " + RetSQLName("SA1") + " SA1 "		+ CRLF
+        cQuery += " WHERE "		+ CRLF
+        cQuery += "    A1_FILIAL = '" + FWxFilial("SA1") + "' "		+ CRLF
+        cQuery += "    AND A1_COD >= '" + MV_PAR01 + "' "		+ CRLF
+        cQuery += "    AND A1_COD <= '" + MV_PAR02 + "' "		+ CRLF
+        cQuery += "    AND SA1.D_E_L_E_T_ = ' '"		+ CRLF
+        cQuery += " ORDER BY "		+ CRLF
+        cQuery += "    A1_COD "		+ CRLF
+
+        //Executando consulta e setando o total da regua
+        PlsQuery(cQuery, "QRY_DAD")
+        DbSelectArea("QRY_DAD")
+
+        //Definindo o tamanho da regua
+        nCurrent := 0
+        Count To nTotal
+        ProcRegua(nTotal)
+        QRY_DAD->(DbGoTop())
+
+        //Percorrendo os dados da query
+        While !(QRY_DAD->(EoF()))
+
+            //Incrementando a regua
+            nCurrent++
+            IncProc("Adicionando registro " + cValToChar(nCurrent) + " de " + cValToChar(nTotal) + "...")
+
+            //Adicionando uma nova linha
+            oFWMsExcel:AddRow(cWorkSheet01, cTitle01, {;
+                QRY_DAD->A1_COD,;
+                QRY_DAD->A1_NOME,;
+                QRY_DAD->A1_NREDUZ,;
+                QRY_DAD->A1_HPAGE,;
+                QRY_DAD->A1_EMAIL;
+            })
+
+            QRY_DAD->(DbSkip())
+        EndDo
+        QRY_DAD->(DbCloseArea())
+
+    //Criando a aba da planilha (Fornecedores)
+	oFWMsExcel:AddworkSheet(cWorkSheet02)
+
+        //Criando a Tabela e as colunas
+        oFWMsExcel:AddTable(cWorkSheet02, cTitle02)
+        oFWMsExcel:AddColumn(cWorkSheet02, cTitle02, "Código", 1, 1, .F.)
+        oFWMsExcel:AddColumn(cWorkSheet02, cTitle02, "Nome", 1, 1, .F.)
+        oFWMsExcel:AddColumn(cWorkSheet02, cTitle02, "Nome Fantasia", 1, 1, .F.)
+        oFWMsExcel:AddColumn(cWorkSheet02, cTitle02, "Site", 1, 1, .F.)
+        oFWMsExcel:AddColumn(cWorkSheet02, cTitle02, "eMail", 1, 1, .F.)
+
+        //Montando consulta de dados buscando os fornecedores
+        cQuery := " SELECT "		+ CRLF
+        cQuery += " A2_COD, "		+ CRLF
+        cQuery += " A2_NOME, "		+ CRLF
+        cQuery += " A2_NREDUZ, "		+ CRLF
+        cQuery += " A2_HPAGE, "		+ CRLF
+        cQuery += " A2_EMAIL "		+ CRLF
+        cQuery += " FROM "		+ CRLF
+        cQuery += "    " + RetSQLName("SA2") + " SA2 "		+ CRLF
+        cQuery += " WHERE "		+ CRLF
+        cQuery += "    A2_FILIAL = '" + FWxFilial("SA2") + "' "		+ CRLF
+        cQuery += "    AND A2_COD >= '" + MV_PAR01 + "' "		+ CRLF
+        cQuery += "    AND A2_COD <= '" + MV_PAR02 + "' "		+ CRLF
+        cQuery += "    AND SA2.D_E_L_E_T_ = ' '"		+ CRLF
+        cQuery += " ORDER BY "		+ CRLF
+        cQuery += "    A2_COD "		+ CRLF
+
+        //Executando consulta e setando o total da regua
+        PlsQuery(cQuery, "QRY_DAD")
+        DbSelectArea("QRY_DAD")
+
+        //Definindo o tamanho da regua
+        nCurrent := 0
+        Count To nTotal
+        ProcRegua(nTotal)
+        QRY_DAD->(DbGoTop())
+
+        //Percorrendo os dados da query
+        While !(QRY_DAD->(EoF()))
+
+            //Incrementando a regua
+            nCurrent++
+            IncProc("Adicionando registro " + cValToChar(nCurrent) + " de " + cValToChar(nTotal) + "...")
+
+            //Adicionando uma nova linha
+            oFWMsExcel:AddRow(cWorkSheet02, cTitle02, {;
+                QRY_DAD->A2_COD,;
+                QRY_DAD->A2_NOME,;
+                QRY_DAD->A2_NREDUZ,;
+                QRY_DAD->A2_HPAGE,;
+                QRY_DAD->A2_EMAIL;
+            })
+
+            QRY_DAD->(DbSkip())
+        EndDo
+        QRY_DAD->(DbCloseArea())
+
+	//Ativando o arquivo e gerando o arquivo
+	oFWMsExcel:Activate()
+	oFWMsExcel:GetXMLFile(cFile)
+    oFWMsExcel:DeActivate()
+
+	//Abrindo o excel e abrindo o arquivo
+    oExcel := MsExcel():New()
+	oExcel:WorkBooks:Open(cFile)
+	oExcel:SetVisible(.T.)
+	oExcel:Destroy()
+
+Return

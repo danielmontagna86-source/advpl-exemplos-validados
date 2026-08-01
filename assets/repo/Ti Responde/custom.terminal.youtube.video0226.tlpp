@@ -1,0 +1,83 @@
+/*
+
+    Esse é um exemplo disponibilizado no Terminal de Informação
+    Confira o artigo sobre esse assunto, no seguinte link: https://terminaldeinformacao.com/2026/03/05/tocando-um-aviso-sonoro-via-codigo-fonte-ti-responde-0226/
+
+*/
+
+
+//Bibliotecas
+#Include "tlpp-core.th"
+#Include "TOTVS.ch" //Por causa da RGB()
+
+//Declaração da namespace
+Namespace custom.terminal.youtube
+
+//Pastas de Origem (Protheus Data) e Destino (na máquina do Usuário)
+Static cFolderOrigin      := "\x_som\"     As Character
+Static cFolderDestination := "C:\spool\"   As Character
+
+/*/{Protheus.doc} User Function video0226
+Exemplo de botões numa Dialog e ao clicar, toca efeitos sonoros
+@type Function
+@author Atilio
+@since 20/06/2025
+@example custom.terminal.youtube.u_video0226()
+/*/
+
+User Function video0226()
+    Local aArea         := FWGetArea()
+    Local nBackgroundColor     := RGB(238, 238, 238)
+    Local nDialogHeight    := 129
+    Local nDialogWidth    := 242
+    Local cDialogTitle    := 'Exemplo de Sons'
+    Local lUsePixels    := .T.
+    Local lCentered    := .T.
+    Local nObjectLine     := 0
+    Local nObjectColumn     := 0
+    Local nObjectWidth     := 0
+    Local nObjectHeight     := 0
+    Private cFont   := 'Tahoma'
+    Private oFontDefault := TFont():New(cFont, , -12)
+    Private oDialogTest
+    Private bInitBlock   := {|| /*fSuaFuncao()*/ } //Aqui voce pode acionar funcoes customizadas que irao ser acionadas ao abrir a dialog
+    Private oButtonWindowsSound
+    Private cButtonWindowsSound    := 'Som do Windows'
+    Private bButtonWindowsSound    := {|| ShellExecute('OPEN', cFolderDestination + "tocar_windows.bat", '', cFolderDestination, 1)}
+    Private oButtonMP3Sound
+    Private cButtonMP3Sound    := 'Arquivo MP3'
+    Private bButtonMP3Sound    := {|| ShellExecute('OPEN', cFolderDestination + "tocar_ps.bat", '', cFolderDestination, 0)}
+
+    //Se a pasta destino não existir, cria ela
+    If ! ExistDir(cFolderDestination)
+        MakeDir(cFolderDestination)
+    EndIf
+
+    //Copia os arquivos da origem para o destino
+    __CopyFile(cFolderOrigin + "tocar_windows.bat", cFolderDestination + "tocar_windows.bat") //Toca Som do Windows
+    __CopyFile(cFolderOrigin + "sonic.mp3",         cFolderDestination + "sonic.mp3")         //Som do Sonic coletando argola
+    __CopyFile(cFolderOrigin + "tocar_mp3.ps1",     cFolderDestination + "tocar_mp3.ps1")     //Script em PowerShell para executar o .mp3
+    __CopyFile(cFolderOrigin + "tocar_ps.bat",      cFolderDestination + "tocar_ps.bat")      //Arquivo .bat para acionar o script em PowerShell
+
+    //Cria a dialog
+    oDialogTest := TDialog():New(0, 0, nDialogHeight, nDialogWidth, cDialogTitle, , , , , , nBackgroundColor, , , lUsePixels)
+
+        //objeto0 - usando a classe TButton
+        nObjectLine := 10
+        nObjectColumn := 10
+        nObjectWidth := 100
+        nObjectHeight := 15
+        oButtonWindowsSound  := TButton():New(nObjectLine, nObjectColumn, cButtonWindowsSound, oDialogTest, bButtonWindowsSound, nObjectWidth, nObjectHeight, , oFontDefault, , lUsePixels)
+
+        //objeto1 - usando a classe TButton
+        nObjectLine := 35
+        nObjectColumn := 10
+        nObjectWidth := 100
+        nObjectHeight := 15
+        oButtonMP3Sound  := TButton():New(nObjectLine, nObjectColumn, cButtonMP3Sound, oDialogTest, bButtonMP3Sound, nObjectWidth, nObjectHeight, , oFontDefault, , lUsePixels)
+
+    //Ativa e exibe a janela
+    oDialogTest:Activate(, , , lCentered, , , bInitBlock)
+
+    FWRestArea(aArea)
+Return

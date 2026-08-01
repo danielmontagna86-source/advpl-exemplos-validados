@@ -1,0 +1,75 @@
+/*
+
+    Esse é um exemplo disponibilizado no Terminal de Informação
+    Confira o artigo sobre esse assunto, no seguinte link: https://terminaldeinformacao.com/2025/12/02/como-consumir-uma-api-com-verbo-patch-usando-httpquote-ti-responde-0208/
+
+*/
+
+
+//Bibliotecas
+#Include "tlpp-core.th"
+
+//Declaração da namespace
+Namespace custom.terminal.youtube
+
+#Define CRLF Chr(13) + Chr(10) //Carriage Return Line Feed
+
+/*/{Protheus.doc} User Function video0208
+Exemplo de como consumir uma API do tipo PATCH
+@type  Function
+@author Atilio
+@since 19/09/2024
+@example custom.terminal.youtube.u_video0208()
+@see https://tdn.totvs.com/display/tec/HTTPQuote
+/*/
+
+User Function video0208()
+    Local aArea            := FWGetArea() As Array
+    Local cApiUrl          := "" As Character
+    Local cApiType         := "" As Character
+    Local cBody            := "" As Character
+    Local cResult          := "" As Character
+    Local aHeader          := {} As Array
+    Local cHeaderResult    := "" As Character
+    Local cMessage         := "" As Character
+    Local cUserToken       := "daniel.atilio" As Character
+    Local cPassToken       := "tst123" As Character
+    Local cBasicToken      := Encode64(cUserToken + ":" + cPassToken) As Character
+
+    //Monta o Body da Requisição
+    cBody += '{'
+    cBody += '    "grupo":"G002",'
+    cBody += '    "proori":"0",'
+    cBody += '    "status":"2"'
+    cBody += '}'
+
+    //Define o endereço e o tipo da integração
+    cApiUrl   := "http://127.0.0.1:8401/rest/WsGrupoProdNov/atualizacao/parcial/unico/"
+    cApiType  := "PATCH"
+
+    //Monta o Header da Requisição
+    aAdd(aHeader,'User-Agent: Mozilla/4.0 (compatible; Protheus '+GetBuild()+')')
+    aAdd(aHeader,'Content-Type: application/json;')
+    aAdd(aHeader,'Authorization: Basic ' + cBasicToken)
+
+    //Aciona a requisição da API no tipo PATCH
+    cResult := HTTPQuote(;
+        cApiUrl,;          //cUrl
+        cApiType,;         //cMethod
+        ,;                 //cGETParms
+        cBody,;            //cPOSTParms
+        120,;              //nTimeOut
+        aHeader,;          //aHeadStr
+        @cHeaderResult;    //cHeaderRet
+    )
+
+    //Monta a mensagem para exibir
+    cMessage += "Header do Retorno: " + CRLF
+    cMessage += cHeaderResult
+    cMessage += CRLF + " ------ " + CRLF + CRLF
+    cMessage += "Resultado Recebido: " + CRLF
+    cMessage += cResult
+    ShowLog(cMessage)
+
+    FWRestArea(aArea)
+Return

@@ -1,0 +1,338 @@
+/*
+
+    Esse é um exemplo disponibilizado no Terminal de Informação
+    Confira o artigo sobre esse assunto, no seguinte link: https://terminaldeinformacao.com/2026/01/22/relatorio-de-pedidos-de-venda-com-impostos-em-treport-ti-responde-0220/
+
+*/
+
+
+//Bibliotecas
+#Include "tlpp-core.th"
+#Include "Totvs.ch"
+
+//Declaração da namespace
+Namespace custom.terminal.youtube
+
+/*/{Protheus.doc} User Function video0220
+Relatório de Produtos Vendidos
+@author Atilio
+@since 30/10/2024
+@version 1.0
+@type function
+@obs Codigo gerado automaticamente pelo Autumn Code Maker
+@see http://autumncodemaker.com
+@example custom.terminal.youtube.u_video0220()
+/*/
+
+User Function video0220()
+	Local aArea         := FWGetArea()                      As Array
+	Local oReport                                           As Object
+	Local aParameters   := {}                               As Array
+	Local cInitOrder    := Space(TamSX3('C5_NUM')[1])       As Character
+	Local cLastOrder    := StrTran(cInitOrder, ' ', 'Z')    As Character
+	Local cInitCustomer := Space(TamSX3('C5_CLIENTE')[1])   As Character
+	Local cLastCustomer := StrTran(cInitCustomer, ' ', 'Z') As Character
+	Local dInitDate     := FirstDate(Date())                As Date
+	Local dLastDate     := LastDate(dInitDate)              As Date
+	Local cInitProduct  := Space(TamSX3('C6_PRODUTO')[1])   As Character
+	Local cLastProduct  := StrTran(cInitProduct, ' ', 'Z')  As Character
+	Private lEvenNumber := .F.                              As Logical
+
+	//Adicionando os parametros do ParamBox
+	aAdd(aParameters, {1, "Pedido De",   cInitOrder,     "", ".T.", "SC5", ".T.", 60,  .F.}) // MV_PAR01
+	aAdd(aParameters, {1, "Pedido Até",  cLastOrder,     "", ".T.", "SC5", ".T.", 60,  .T.}) // MV_PAR02
+	aAdd(aParameters, {1, "Cliente De",  cInitCustomer,  "", ".T.", "SA1", ".T.", 60,  .F.}) // MV_PAR03
+	aAdd(aParameters, {1, "Cliente Até", cLastCustomer,  "", ".T.", "SA1", ".T.", 60,  .T.}) // MV_PAR04
+	aAdd(aParameters, {1, "Emissão De",  dInitDate,      "", ".T.", "",    ".T.", 80,  .T.}) // MV_PAR05
+	aAdd(aParameters, {1, "Emissão Até", dLastDate,      "", ".T.", "",    ".T.", 80,  .T.}) // MV_PAR06
+	aAdd(aParameters, {1, "Produto De",  cInitProduct,   "", ".T.", "SB1", ".T.", 90,  .F.}) // MV_PAR07
+	aAdd(aParameters, {1, "Produto Até", cLastProduct,   "", ".T.", "SB1", ".T.", 90,  .T.}) // MV_PAR08
+
+	//Se a pergunta for confirma, cria as definicoes do relatorio
+	If ParamBox(aParameters, 'Informe os parâmetros', /*aRet*/, /*bOk*/, /*aButtons*/, /*lCentered*/, /*nPosx*/, /*nPosy*/, /*oDlgWizard*/, /*cLoad*/, .F., .F.)
+		oReport := reportDef()
+		oReport:PrintDialog()
+	EndIf
+
+	FWRestArea(aArea)
+Return
+
+/*/{Protheus.doc} reportDef
+Definicoes do relatorio video0220
+@author Atilio
+@since 30/10/2024
+@version 1.0
+@type function
+@obs Codigo gerado automaticamente pelo Autumn Code Maker
+@see http://autumncodemaker.com
+/*/
+
+Static Function reportDef()
+	Local oReport                                    As Object
+	Local oSection        := Nil                     As Object
+	Local bPageBreakBlock := {|| lEvenNumber := .F.} As CodeBlock
+
+	//Criacao do componente de impressao
+	oReport := TReport():New( "video0220",;
+		"Produtos Vendidos",;
+		,;
+		{|oReport| reportPrint(oReport),};
+		)
+	oReport:SetTotalInLine(.F.)
+	oReport:lParamPage := .F.
+	oReport:oPage:SetPaperSize(9)
+
+	//Orientacao do Relatorio
+	oReport:SetPortrait()
+
+	//Criando a secao de dados
+	oSection := TRSection():New( oReport,;
+		"Dados",;
+		{"QRY_REP", "SC6"})
+	oSection:SetTotalInLine(.F.)
+
+	//Colunas do relatorio
+	TRCell():New(oSection, "C5_NUM",     "QRY_REP", "Pedido",             /*cPicture*/,         6, /*lPixel*/, /*{|| code-block de impressao }*/, "LEFT", /*lLineBreak*/, "LEFT", /*lCellBreak*/, /*nColSpace*/, /*lAutoSize*/, /*nClrBack*/, /*nClrFore*/, .F.)
+	TRCell():New(oSection, "C5_EMISSAO", "QRY_REP", "Data Emissão",       /*cPicture*/,        10, /*lPixel*/, /*{|| code-block de impressao }*/, "CENTER", /*lLineBreak*/, "CENTER", /*lCellBreak*/, /*nColSpace*/, /*lAutoSize*/, /*nClrBack*/, /*nClrFore*/, .F.)
+	TRCell():New(oSection, "C6_PRODUTO", "SC6",     "Produto",            /*cPicture*/,        15, /*lPixel*/, /*{|| code-block de impressao }*/, "LEFT", /*lLineBreak*/, "LEFT", /*lCellBreak*/, /*nColSpace*/, /*lAutoSize*/, /*nClrBack*/, /*nClrFore*/, .F.)
+	TRCell():New(oSection, "C6_DESCRI",  "SC6",     "Descrição",          /*cPicture*/,        30, /*lPixel*/, /*{|| code-block de impressao }*/, "LEFT", /*lLineBreak*/, "LEFT", /*lCellBreak*/, /*nColSpace*/, /*lAutoSize*/, /*nClrBack*/, /*nClrFore*/, .F.)
+	TRCell():New(oSection, "C6_QTDVEN",  "SC6",     "Qtde. Vendida",      "@E 999,999,999.99", 12, /*lPixel*/, /*{|| code-block de impressao }*/, "RIGHT", /*lLineBreak*/, "RIGHT", /*lCellBreak*/, /*nColSpace*/, /*lAutoSize*/, /*nClrBack*/, /*nClrFore*/, .F.)
+	TRCell():New(oSection, "C6_PRCVEN",  "SC6",     "Preço Unit.",        "@E 999,999,999.99", 12, /*lPixel*/, /*{|| code-block de impressao }*/, "RIGHT", /*lLineBreak*/, "RIGHT", /*lCellBreak*/, /*nColSpace*/, /*lAutoSize*/, /*nClrBack*/, /*nClrFore*/, .F.)
+	TRCell():New(oSection, "C6_VALOR",   "SC6",     "Valor Total",        "@E 999,999,999.99", 12, /*lPixel*/, /*{|| code-block de impressao }*/, "RIGHT", /*lLineBreak*/, "RIGHT", /*lCellBreak*/, /*nColSpace*/, /*lAutoSize*/, /*nClrBack*/, /*nClrFore*/, .F.)
+	TRCell():New(oSection, "XX_VALTOT",  "",        "Valor com Impostos", "@E 999,999,999.99", 12, /*lPixel*/, /*{|| code-block de impressao }*/, "RIGHT", /*lLineBreak*/, "RIGHT", /*lCellBreak*/, /*nColSpace*/, /*lAutoSize*/, /*nClrBack*/, /*nClrFore*/, .F.)
+	TRCell():New(oSection, "XX_PEDTOT",  "",        "Valor do Pedido",    "@E 999,999,999.99", 12, /*lPixel*/, /*{|| code-block de impressao }*/, "RIGHT", /*lLineBreak*/, "RIGHT", /*lCellBreak*/, /*nColSpace*/, /*lAutoSize*/, /*nClrBack*/, /*nClrFore*/, .F.)
+
+	//Totalizadores
+	TRFunction():New(oSection:Cell("C6_VALOR"),  /*cName*/, "SUM", /*oBreak*/, /*cTitle*/, "@E 999,999,999.99", /*uFormula*/, .F.)
+	TRFunction():New(oSection:Cell("XX_VALTOT"), /*cName*/, "SUM", /*oBreak*/, /*cTitle*/, "@E 999,999,999.99", /*uFormula*/, .F.)
+
+
+	//Define que na quebra de página, a flag volta a ser ímpar
+	oReport:OnPageBreak(bPageBreakBlock, .T.)
+
+Return oReport
+
+/*/{Protheus.doc} reportPrint
+Impressao do relatorio video0220
+@author Atilio
+@since 30/10/2024
+@version 1.0
+@type function
+@obs Codigo gerado automaticamente pelo Autumn Code Maker
+@see http://autumncodemaker.com
+/*/
+
+Static Function reportPrint(oReport)
+	Local aArea              := FWGetArea()
+	Local cQueryReport       := ""
+	Local oSection           := Nil                                As Object
+	Local nCurrent           := 0                                  As Numeric
+	Local nTotal             := 0                                  As Numeric
+	//Variáveis usadas no brush, documentações no TDN - https://tdn.totvs.com/display/public/framework/TReport
+	Local nBrushCurrentLine  := 0                                  As Numeric
+	Local nBrushInitColumn   := oReport:LeftMargin()               As Numeric //Margem da esquerda, vai ser a coluna inicial
+	Local nBrushWidth        := oReport:PageWidth()                As Numeric //Largura da página, vai ser a coluna final
+	Local nBrushHeight       := oReport:LineHeight()               As Numeric //Espaçamento entre as linhas, para saber a altura que irá pintar
+	Local oBrush             := TBrush():New(, RGB(223, 255, 249)) As Object //Pincel em um tom de claro
+    //Variáveis que vão ser usadas na geração dos dados dos impostos
+    Local cCurrentOrder      := ""                                 As Character
+    Local aDataSC6           := {}                                 As Array
+    Local cQuerySC6          := ""                                 As Character
+    Local nOrderItem         := 0                                  As Numeric
+    Local nOrderValueWithTax := 0                                  As Numeric
+
+	//Pegando as secoes do relatorio
+	oSection := oReport:Section(1)
+
+	//Montando consulta de dados, buscando os pedidos conforme os filtros do parâmetro
+	cQueryReport := "SELECT " + CRLF
+	cQueryReport += "    C5_NUM, " + CRLF
+	cQueryReport += "    C5_EMISSAO " + CRLF
+	cQueryReport += "FROM " + CRLF
+	cQueryReport += "    " + RetSQLName("SC5") + " SC5 " + CRLF
+	cQueryReport += "WHERE " + CRLF
+	cQueryReport += "    C5_FILIAL = '" + FWxFilial("SC5") + "' " + CRLF
+	cQueryReport += "    AND C5_NUM >= '" + MV_PAR01 + "' " + CRLF
+	cQueryReport += "    AND C5_NUM <= '" + MV_PAR02 + "' " + CRLF
+	cQueryReport += "    AND C5_CLIENTE >= '" + MV_PAR03 + "' " + CRLF
+	cQueryReport += "    AND C5_CLIENTE <= '" + MV_PAR04 + "' " + CRLF
+	cQueryReport += "    AND C5_EMISSAO >= '" + dToS(MV_PAR05) + "' " + CRLF
+	cQueryReport += "    AND C5_EMISSAO <= '" + dToS(MV_PAR06) + "' " + CRLF
+	cQueryReport += "    AND ( " + CRLF
+	cQueryReport += "        SELECT COUNT(C6_NUM) " + CRLF
+	cQueryReport += "        FROM " + RetSQLName("SC6") + " SC6 " + CRLF
+	cQueryReport += "        WHERE C6_FILIAL = '" + FWxFilial("SC6") + "' " + CRLF
+	cQueryReport += "            AND C6_NUM = C5_NUM " + CRLF
+	cQueryReport += "            AND C6_PRODUTO >= '" + MV_PAR07 + "' " + CRLF
+	cQueryReport += "            AND C6_PRODUTO <= '" + MV_PAR08 + "' " + CRLF
+	cQueryReport += "            AND SC6.D_E_L_E_T_ = ' ' " + CRLF
+	cQueryReport += "    ) > 0 " + CRLF
+	cQueryReport += "    AND SC5.D_E_L_E_T_ = ' ' " + CRLF
+	cQueryReport += "ORDER BY " + CRLF
+	cQueryReport += "    C5_NUM ASC " + CRLF
+
+    //Pergunta se o usuário quer ver a query
+    If FWIsAdmin() .And. FWAlertYesNo("Como admin, você deseja ver a query?", "Continua?")
+        ShowLog(cQueryReport)
+    EndIf
+
+	//Executando consulta e setando o total da regua
+	PlsQuery(cQueryReport, "QRY_REP")
+	DbSelectArea("QRY_REP")
+	Count to nTotal
+	oReport:SetMeter(nTotal)
+
+	//Enquanto houver dados
+	oSection:Init()
+	QRY_REP->(DbGoTop())
+	While ! QRY_REP->(Eof())
+
+        //Se o pedido mudou, vai ter que carregar os impostos para o novo pedido
+        If cCurrentOrder != QRY_REP->C5_NUM
+
+            //Se já teve pedido, encerra o cálculo fiscal
+            If ! Empty(cCurrentOrder)
+                MaFisEnd()
+            EndIf
+
+            //Atualiza o pedido e zera os dados da SC6
+            cCurrentOrder := QRY_REP->C5_NUM
+            aDataSC6      := {}
+            nOrderItem    := 0
+
+            //Inicializa o cálculo fiscal
+            DbSelectArea("SC5")
+            SC5->(MsSeek(FWxFilial("SC5") + QRY_REP->C5_NUM))
+            MaFisIni(SC5->C5_CLIENTE,;                   // 01 - Codigo Cliente/Fornecedor
+                SC5->C5_LOJACLI,;                        // 02 - Loja do Cliente/Fornecedor
+                Iif(SC5->C5_TIPO $ "D;B", "F", "C"),;    // 03 - C:Cliente , F:Fornecedor
+                SC5->C5_TIPO,;                           // 04 - Tipo da NF
+                SC5->C5_TIPOCLI,;                        // 05 - Tipo do Cliente/Fornecedor
+                MaFisRelImp("MT100", {"SF2", "SD2"}),;   // 06 - Relacao de Impostos que suportados no arquivo
+                ,;                                       // 07 - Tipo de complemento
+                ,;                                       // 08 - Permite Incluir Impostos no Rodape .T./.F.
+                "SB1",;                                  // 09 - Alias do Cadastro de Produtos - ("SBI" P/ Front Loja)
+                "MATA461")                               // 10 - Nome da rotina que esta utilizando a funcao
+
+            //Seleciona agora os itens do pedido
+            cQuerySC6 := " SELECT "                                      + CRLF
+            cQuerySC6 += "    SC6.R_E_C_N_O_ AS SC6_ID, "                + CRLF
+            cQuerySC6 += "    SB1.R_E_C_N_O_ AS SB1_ID, "                 + CRLF
+            cQuerySC6 += "    SF4.R_E_C_N_O_ AS SF4_ID "                 + CRLF
+            cQuerySC6 += " FROM "                                        + CRLF
+            cQuerySC6 += "    "+RetSQLName("SC6")+" SC6 "                + CRLF
+            cQuerySC6 += "    LEFT JOIN "+RetSQLName("SB1")+" SB1 ON ( " + CRLF
+            cQuerySC6 += "        B1_FILIAL = '"+FWxFilial("SB1")+"' "   + CRLF
+            cQuerySC6 += "        AND B1_COD = SC6.C6_PRODUTO "          + CRLF
+            cQuerySC6 += "        AND SB1.D_E_L_E_T_ = ' ' "             + CRLF
+            cQuerySC6 += "    ) "                                        + CRLF
+            cQuerySC6 += "    LEFT JOIN "+RetSQLName("SF4")+" SF4 ON ( " + CRLF
+            cQuerySC6 += "        F4_FILIAL = SC6.C6_FILIAL "   + CRLF
+            cQuerySC6 += "        AND F4_CODIGO = SC6.C6_TES "          + CRLF
+            cQuerySC6 += "        AND SF4.D_E_L_E_T_ = ' ' "             + CRLF
+            cQuerySC6 += "    ) "                                        + CRLF
+            cQuerySC6 += " WHERE "                                       + CRLF
+            cQuerySC6 += "    C6_FILIAL = '"+SC5->C5_FILIAL+"' "       + CRLF
+            cQuerySC6 += "    AND C6_NUM = '"+SC5->C5_NUM+"' "       + CRLF
+            cQuerySC6 += "    AND SC6.D_E_L_E_T_ = ' ' "                 + CRLF
+            cQuerySC6 += " ORDER BY "                                    + CRLF
+            cQuerySC6 += "    C6_ITEM "                                  + CRLF
+            PlsQuery(cQuerySC6, "QRY_ITE")
+
+            //Enquanto houver itens
+            QRY_ITE->(DbGoTop())
+            While ! QRY_ITE->(EoF())
+                nOrderItem++
+
+                //Posiciona nas tabelas
+                DbSelectArea("SB1")
+                DbSelectArea("SC6")
+                DbSelectArea("SF4")
+                SB1->(DbGoTo(QRY_ITE->SB1_ID))
+                SC6->(DbGoTo(QRY_ITE->SC6_ID))
+                SF4->(DbGoTo(QRY_ITE->SF4_ID))
+
+                //Adiciona os tratamentos de impostos
+                MaFisAdd(SC6->C6_PRODUTO,;    // 01 - Codigo do Produto                    ( Obrigatorio )
+                    SC6->C6_TES,;             // 02 - Codigo do TES                        ( Opcional )
+                    SC6->C6_QTDVEN,;          // 03 - Quantidade                           ( Obrigatorio )
+                    SC6->C6_PRCVEN,;          // 04 - Preco Unitario                       ( Obrigatorio )
+                    SC6->C6_VALDESC,;         // 05 - Desconto
+                    SC6->C6_NFORI,;           // 06 - Numero da NF Original                ( Devolucao/Benef )
+                    SC6->C6_SERIORI,;         // 07 - Serie da NF Original                 ( Devolucao/Benef )
+                    0,;                       // 08 - RecNo da NF Original no arq SD1/SD2
+                    0,;                       // 09 - Valor do Frete do Item               ( Opcional )
+                    0,;                       // 10 - Valor da Despesa do item             ( Opcional )
+                    0,;                       // 11 - Valor do Seguro do item              ( Opcional )
+                    0,;                       // 12 - Valor do Frete Autonomo              ( Opcional )
+                    SC6->C6_VALOR,;           // 13 - Valor da Mercadoria                  ( Obrigatorio )
+                    0,;                       // 14 - Valor da Embalagem                   ( Opcional )
+                    SB1->(RecNo()),;          // 15 - RecNo do SB1
+                    SF4->(RecNo()))           // 16 - RecNo do SF4
+
+                nQtdPeso := SC6->C6_QTDVEN * SB1->B1_PESO
+                MaFisLoad("IT_VALMERC", SC6->C6_VALOR, nOrderItem)
+                MaFisAlt("IT_PESO", nQtdPeso, nOrderItem)
+
+                //Adiciona no array de referências
+                aAdd(aDataSC6, {nOrderItem, SC6->(RecNo())})
+
+                QRY_ITE->(DbSkip())
+            EndDo
+            QRY_ITE->(DbCloseArea())
+
+            //Ajusta informações dos cálculos dos impostos
+            MaFisAlt("NF_FRETE", SC5->C5_FRETE)
+            MaFisAlt("NF_SEGURO", SC5->C5_SEGURO)
+            MaFisAlt("NF_DESPESA", SC5->C5_DESPESA)
+            MaFisAlt("NF_AUTONOMO", SC5->C5_FRETAUT)
+            If SC5->C5_DESCONT > 0
+                MaFisAlt("NF_DESCONTO", Min(MaFisRet(, "NF_VALMERC")-0.01, SC5->C5_DESCONT+MaFisRet(, "NF_DESCONTO")) )
+            EndIf
+            If SC5->C5_PDESCAB > 0
+                MaFisAlt("NF_DESCONTO", A410Arred(MaFisRet(, "NF_VALMERC")*SC5->C5_PDESCAB/100, "C6_VALOR") + MaFisRet(, "NF_DESCONTO"))
+            EndIf
+        EndIf
+
+		//Incrementando a regua
+		nCurrent++
+		oReport:SetMsgPrint("Imprimindo pedido " + cValToChar(nCurrent) + " de " + cValToChar(nTotal) + "...")
+		oReport:IncMeter()
+
+        //Agora percorre as informações da SC6
+        For nOrderItem := 1 To Len(aDataSC6)
+            //Posiciona no item do pedido
+            DbSelectArea("SC6")
+            SC6->(DbGoTo(aDataSC6[nOrderItem][2]))
+
+            //Se o produto NÃO estiver entre os parâmetros, vai pular para não imprimir
+            If ! (SC6->C6_PRODUTO >= MV_PAR07 .And. SC6->C6_PRODUTO <= MV_PAR08)
+                Loop
+            EndIf
+
+            //Se for uma linha Par, irá imprimir o fundo
+            If lEvenNumber
+                nBrushCurrentLine := oReport:Row() //Pega a linha atual no relatório
+                oReport:FillRect({nBrushCurrentLine, nBrushInitColumn, nBrushCurrentLine + nBrushHeight, nBrushWidth}, oBrush)
+            EndIf
+
+            //Busca o valor com impostos
+            nOrderValueWithTax := MaFisRet(nOrderItem, "IT_TOTAL")
+			nValPedTot := MaFisRet(, "NF_TOTAL")
+
+            //Imprimindo a linha atual
+            oSection:Cell("XX_VALTOT"):SetValue(nOrderValueWithTax)
+			oSection:Cell("XX_PEDTOT"):SetValue(nValPedTot)
+            oSection:PrintLine()
+
+            //Atualiza entre par e ímpar
+            lEvenNumber := ! lEvenNumber
+        Next
+
+		QRY_REP->(DbSkip())
+	EndDo
+	oSection:Finish()
+	QRY_REP->(DbCloseArea())
+
+	FWRestArea(aArea)
+Return

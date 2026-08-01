@@ -1,0 +1,189 @@
+/*
+
+    Esse é um exemplo disponibilizado no Terminal de Informação
+    Confira o artigo sobre esse assunto, no seguinte link: https://terminaldeinformacao.com/2025/12/04/gravando-a-quantidade-da-populacao-de-uma-cidade-na-tabela-cc2-ti-responde-0209/
+
+*/
+
+
+//Bibliotecas
+#Include "tlpp-core.th"
+
+//Declaração da namespace
+Namespace custom.terminal.youtube
+
+#Define CRLF Chr(13) + Chr(10) //Carriage Return Line Feed
+
+/*/{Protheus.doc} User Function video0209
+Importação de População das Cidades
+@author Atilio
+@since 11/09/2024
+@version 1.0
+@type function
+@example custom.terminal.youtube.u_video0209()
+@obs Criar os campos:
+    + CC2_X_POPU do tipo Numérico, Tamanho 10, Decimal 0, Máscara @E 9,999,999,999
+    + CC2_X_DATA do tipo Data, Tamanho 8
+
+    Os CSVs dos estados podem ser baixados direto no site do IBGE, exemplo:
+    https://ibge.gov.br/cidades-e-estados/sp.html
+    https://ibge.gov.br/cidades-e-estados/ac.html
+    https://ibge.gov.br/cidades-e-estados/rj.html
+
+    Ao baixar os CSVs, deixe eles em uma pasta, com o nome do estado respectivo, por exemplo, C:\pasta\rj.csv
+/*/
+
+User Function video0209()
+	Local aArea           := FWGetArea()                                    As Array
+	Local cInitDirectory  := GetTempPath()                                  As Character
+	Local cTypeFile       := ''                                             As Character
+	Local cTitle          := 'Seleção de Pasta para ler os os arquivos CSV' As Character
+	Local lSave           := .F.                                            As Logical
+	Local cFolder         := ''                                             As Character
+
+	//Se não estiver sendo executado via job
+	If ! IsBlind()
+		cFolder := tFileDialog(;
+			cTypeFile,;              // Filtragem de tipos de arquivos que serão selecionados
+			cTitle,;                 // Título da Janela para seleção dos arquivos
+			,;                       // Compatibilidade
+			cInitDirectory,;         // Diretório inicial da busca de arquivos
+			lSave,;                  // Se for .T., será uma Save Dialog, senão será Open Dialog
+			GETF_RETDIRECTORY;       // Se não passar parâmetro, irá pegar apenas 1 arquivo; Se for informado GETF_MULTISELECT será possível pegar mais de 1 arquivo; Se for informado GETF_RETDIRECTORY será possível selecionar o diretório
+		)
+
+		//Tratativa para add barra na direita
+		cFolder := Alltrim(cFolder)
+		If Right(cFolder, 1) != "\"
+			cFolder += "\"
+		EndIf
+
+		//Se a pasta existir
+		If ! Empty(cFolder) .And. ExistDir(cFolder)
+	        Processa({|| importFolderFiles(cFolder) }, 'Importando...')
+	    EndIf
+	EndIf
+
+	FWRestArea(aArea)
+Return
+
+/*/{Protheus.doc} importFolderFiles
+Função que processa o arquivo e realiza a importação para o sistema
+@author Atilio
+@since 11/09/2024
+@version 1.0
+@type function
+/*/
+
+Static Function importFolderFiles(cFolder)
+	Local cLogFolder       := GetTempPath()                                                              As Character
+    Local dToday           := Date()                                                                     As Date
+	Local cLogFile         := 'importacao_' + dToS(dToday) + '_' + StrTran(Time(), ':', '-') + '.log' As Character
+	Local nTotalLines      := 0                                                                          As Numeric
+	Local cCurrentLine     := ''                                                                         As Character
+	Local nCurrentLine     := 0                                                                          As Numeric
+	Local aCurrentContent  := {}                                                                         As Array
+	Local oFile                                                                                          As Object
+	Local cLog             := ''                                                                         As Character
+    Local cCityId          := ''                                                                         As Character
+    Local nPopulation      := 0                                                                          As Numeric
+    Local cState           := ''                                                                         As Character
+	Local cCurrentFile     := ''                                                                         As Character
+	Local aFiles           := {}                                                                         As Array
+	Local nCurrentFile     := 0                                                                          As Numeric
+	//Variáveis da Importação
+	Private cTableAlias    := 'CC2'                                                                      As Character
+	Private cSeparator     := ','                                                                        As Character
+
+	//Abre as tabelas que serão usadas
+	DbSelectArea(cTableAlias)
+	(cTableAlias)->(DbSetOrder(1)) // CC2_FILIAL + CC2_EST + CC2_CODMUN
+	(cTableAlias)->(DbGoTop())
+
+	//Pega todos os arquivos
+	aFiles := Directory(cFolder + "*.csv")
+
+	//Percorre eles
+	For nCurrentFile := 1 To Len(aFiles)
+		cCurrentFile := cFolder + aFiles[nCurrentFile][1]
+
+		//Definindo o arquivo a ser lido
+		oFile := FWFileReader():New(cCurrentFile)
+
+		//Se o arquivo pode ser aberto
+		If (oFile:Open())
+
+			//Se não for fim do arquivo
+			If ! (oFile:EoF())
+
+				//Pegando a sigla do estado
+				cNome := ""
+				SplitPath(cCurrentFile, /*@cDrive*/, /*@cDiretorio*/, @cNome, /*@cExtensao*/)
+				cState := Upper(cNome)
+
+				//Definindo o tamanho da régua
+				aLinhas := oFile:GetAllLines()
+				nTotalLines := Len(aLinhas)
+				ProcRegua(nTotalLines)
+
+				//Método GoTop não funciona (dependendo da versão da LIB), deve fechar e abrir novamente o arquivo
+				oFile:Close()
+				oFile := FWFileReader():New(cCurrentFile)
+				oFile:Open()
+
+				//Iniciando controle de transação
+				Begin Transaction
+
+					//Enquanto tiver linhas
+                    nCurrentLine := 0
+					While (oFile:HasLine())
+
+						//Incrementa na tela a mensagem
+						nCurrentLine++
+						IncProc('Analisando linha ' + cValToChar(nCurrentLine) + ' de ' + cValToChar(nTotalLines) + '...')
+
+						//Pegando a linha atual e transformando em array
+						cCurrentLine := oFile:GetLine()
+						aCurrentContent  := Separa(cCurrentLine, cSeparator)
+
+						//Se for as linhas de cabeçalho
+						If nCurrentLine <= 2
+							Loop
+
+                        //Se na linha tual, tiver tag em html, vai pular
+                        ElseIf "<td>" $ cCurrentLine
+                            Loop
+
+						//Se houver posições no array
+						ElseIf Len(aCurrentContent) >= 6
+							cCityId    := SubStr(aCurrentContent[2], 3)
+							nPopulation := Val(aCurrentContent[6])
+
+							If (cTableAlias)->(MsSeek(FWxFilial("CC2") + cState + cCityId))
+								cLog += '+ Cidade ' + cCityId + ' atualizada com sucesso (linha ' + cValToChar(nCurrentLine) + ') do arquivo ' + cCurrentFile + ';' + CRLF
+								RecLock(cTableAlias, .F.)
+									CC2_X_POPU := nPopulation
+									CC2_X_DATA := dToday
+								(cTableAlias)->(MsUnlock())
+							Else
+								cLog += '- Cidade ' + cCityId + ' não foi encontrada no cadastro (linha ' + cValToChar(nCurrentLine) + ') do arquivo ' + cCurrentFile + ';' + CRLF
+							EndIf
+
+						EndIf
+
+					EndDo
+				End Transaction
+			EndIf
+
+			//Fecha o arquivo
+			oFile:Close()
+		EndIf
+	Next
+
+	//Se tiver log, mostra ele
+	If ! Empty(cLog)
+		MemoWrite(cLogFolder + cLogFile, cLog)
+		ShellExecute('OPEN', cLogFile, '', cLogFolder, 1)
+	EndIf
+
+Return

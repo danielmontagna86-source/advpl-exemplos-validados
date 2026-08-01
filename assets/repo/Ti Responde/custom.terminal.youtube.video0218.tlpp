@@ -1,0 +1,53 @@
+/*
+
+    Esse é um exemplo disponibilizado no Terminal de Informação
+    Confira o artigo sobre esse assunto, no seguinte link: https://terminaldeinformacao.com/2026/01/08/exemplo-de-como-acionar-a-fwalertexitpage-ti-responde-0218/
+
+*/
+
+
+//Bibliotecas
+#Include "tlpp-core.th"
+
+//Declaração da namespace
+Namespace custom.terminal.youtube
+
+/*/{Protheus.doc} User Function video0218
+Exemplo de como acionar a função FWAlertExitPage
+@type  Function
+@author Atilio
+@since 29/04/2024
+@example
+    custom.terminal.youtube.u_video0218()
+/*/
+
+User Function video0218()
+    Local aArea     := FWGetArea()
+    Local cMessage  := "Mensagem que é exibida na tela"
+    Local cTitle    := "Título"
+    Local nAnswer   := 0
+    Local bClose    := {|| nAnswer := 1}
+    Local bSave     := {|| nAnswer := 2}
+    Local bContinue := {|| nAnswer := 3}
+
+    //Mostra a mensagem
+    FWAlertExitPage(cMessage, cTitle, bClose, bSave, bContinue)
+
+    //Mostra a resposta que o usuário selecionou
+    FWAlertInfo("Resposta que o usuário escolheu: " + cValToChar(nAnswer), "Atenção")
+
+    //Se clicou no 'Sair da Página'
+    If nAnswer == 1
+        // to-do
+
+    //Se clicou no 'Salvar'
+    ElseIf nAnswer == 2
+        // to-do
+
+    //Se clicou no 'Continuar editando'
+    ElseIf nAnswer == 3
+        // to-do
+    EndIf
+
+    FWRestArea(aArea)
+Return

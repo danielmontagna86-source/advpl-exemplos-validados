@@ -1,0 +1,142 @@
+/*
+
+    Esse é um exemplo disponibilizado no Terminal de Informação
+    Confira o artigo sobre esse assunto, no seguinte link: https://terminaldeinformacao.com/2026/04/02/bloquear-digitacao-em-tget-mas-liberar-leitor-de-codigo-de-barras-ti-responde-0230/
+
+*/
+
+
+//Bibliotecas
+#Include "tlpp-core.th"
+#Include "TOTVS.ch"
+
+//Declaração da namespace
+Namespace custom.terminal.youtube
+
+/*/{Protheus.doc} User Function video0230
+Exemplo de bloquear digitação em um TGet (controlando através do tempo)
+@type Function
+@author Atilio
+@since 28/08/2025
+@example custom.terminal.youtube.u_video0230()
+/*/
+
+User Function video0230()
+    Local aArea             := FWGetArea() As Array
+    Local nBackgroundColor  := RGB(238, 238, 238) As Numeric
+    Local nDialogHeight     := 281 As Numeric
+    Local nDialogWidth      := 318  As Numeric
+    Local cDialogTitle      := 'Exemplo TGet' As Character
+    Local lUsePixels        := .T. As Logical
+    Local lCentered         := .T. As Logical
+    Local nObjectLine       := 0 As Numeric
+    Local nObjectColumn     := 0 As Numeric
+    Local nObjectWidth      := 0 As Numeric
+    Local nObjectHeight     := 0 As Numeric
+    Private cFont           := 'Tahoma' As Character
+    Private oFont           := TFont():New(cFont, , -12) As Object
+    Private oDialogTest     As Object
+    Private bInitBlock      := {|| /*fSuaFuncao()*/ } As CodeBlock
+    //Código do Produto
+    Private oSayProduct     As Object
+    Private cSayProduct     := 'Produto:'  As Character
+    Private oGetProduct     As Object
+    Private cGetProduct     := Space(TamSX3('B1_COD')[1]) As Character
+    //Descrição
+    Private oSayDescription As Object
+    Private cSayDescription := 'Descrição:'   As Character
+    Private oGetDescription As Object
+    Private cGetDescription := Space(TamSX3('B1_DESC')[1]) As Character
+    //Tratativa horas
+    Private cInitTime       := "" As Character
+    Private cLastTime       := "" As Character
+    Private cDiffTime       := "" As Character
+    //objeto14
+    Private oBtnOk          As Object
+    Private cBtnOk          := 'Ok'   As Character
+    Private bBtnOk          := {|| MsgInfo('Clicou no OK - ' + cGetProduct, 'Atenção')}  As CodeBlock
+
+    //Cria a dialog
+    oDialogTest := TDialog():New(0, 0, nDialogHeight, nDialogWidth, cDialogTitle, , , , , , nBackgroundColor, , , lUsePixels)
+
+        //Label do Produto
+        nObjectLine := 4
+        nObjectColumn := 4
+        nObjectWidth := 40
+        nObjectHeight := 6
+        oSayProduct  := TSay():New(nObjectLine, nObjectColumn, {|| cSayProduct}, oDialogTest, /*cPicture*/, oFont, , , , lUsePixels, /*nClrText*/, /*nClrBack*/, nObjectWidth, nObjectHeight, , , , , , /*lHTML*/)
+
+        //Get do Produto
+        nObjectLine := 3
+        nObjectColumn := 49
+        nObjectWidth := 100
+        nObjectHeight := 10
+        oGetProduct  := TGet():New(nObjectLine, nObjectColumn, {|u| Iif(PCount() > 0 , cGetProduct := u, cGetProduct)}, oDialogTest, nObjectWidth, nObjectHeight, /*cPict*/, /*bValid*/, /*nClrFore*/, /*nClrBack*/, oFont, , , lUsePixels)
+        oGetProduct:bValid     := {|| validProduct()} //Ao validar o que foi digitado pelo usuário
+        oGetProduct:bGotFocus := {|| cleanInitTime()} //Ao acessar o foco
+        cleanInitTime() //Aciona manualmente para zerar a hora inicial
+
+        //Label da Descrição
+        nObjectLine := 24
+        nObjectColumn := 4
+        nObjectWidth := 40
+        nObjectHeight := 6
+        oSayDescription  := TSay():New(nObjectLine, nObjectColumn, {|| cSayDescription}, oDialogTest, /*cPicture*/, oFont, , , , lUsePixels, /*nClrText*/, /*nClrBack*/, nObjectWidth, nObjectHeight, , , , , , /*lHTML*/)
+
+        //Get da Descrição
+        nObjectLine := 23
+        nObjectColumn := 49
+        nObjectWidth := 100
+        nObjectHeight := 10
+        oGetDescription  := TGet():New(nObjectLine, nObjectColumn, {|u| Iif(PCount() > 0 , cGetDescription := u, cGetDescription)}, oDialogTest, nObjectWidth, nObjectHeight, /*cPict*/, /*bValid*/, /*nClrFore*/, /*nClrBack*/, oFont, , , lUsePixels)
+
+        //Botão de Confirmar
+        nObjectLine := 116
+        nObjectColumn := 2
+        nObjectWidth := (nDialogWidth/2) - 4
+        nObjectHeight := 15
+        oBtnOk  := TButton():New(nObjectLine, nObjectColumn, cBtnOk, oDialogTest, bBtnOk, nObjectWidth, nObjectHeight, , oFont, , lUsePixels)
+
+    //Ativa e exibe a janela
+    oDialogTest:Activate(, , , lCentered, , , bInitBlock)
+
+    FWRestArea(aArea)
+Return
+
+Static Function validProduct()
+    Local lContinue := .T. As Logical
+
+    //Pega a hora atual e puxa a diferença
+    cLastTime := Time()
+    cDiffTime := ElapTime(cInitTime, cLastTime)
+
+    //Se for maior que 1 segundo
+    If cDiffTime > "00:00:01"
+        cGetDescription := "Passou de 1 segundo!"
+        lContinue := .F.
+    Else
+        DbSelectArea("SB1")
+        SB1->(DbSetOrder(1)) // B1_FILIAL + B1_COD
+
+        //Se conseguir posicionar no produto, mostra a descrição
+        If SB1->(MsSeek(FWxFilial("SB1") + cGetProduct))
+            cGetDescription := SB1->B1_DESC
+
+        //Senão, mostra mensagem de erro
+        Else
+            cGetDescription := "Produto não encontrado!"
+            lContinue := .F.
+        EndIf
+    EndIf
+
+    //Atualiza objetos da tela
+    GetDRefresh()
+
+    //Reseta a hora inicial
+    cleanInitTime()
+Return lContinue
+
+
+Static Function cleanInitTime()
+    cInitTime := Time()
+Return

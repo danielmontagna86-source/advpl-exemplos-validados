@@ -1,0 +1,497 @@
+/*
+
+    Esse é um exemplo disponibilizado no Terminal de Informação
+    Confira o artigo sobre esse assunto, no seguinte link: https://terminaldeinformacao.com/2026/02/05/tela-que-gera-um-grafico-conforme-a-linha-posicionada-ti-responde-0222/
+
+*/
+
+
+//Bibliotecas
+#Include "tlpp-core.th"
+#Include "TOTVS.ch" //por causa da RGB()
+
+//Declaração da namespace
+Namespace custom.terminal.youtube
+
+//Constantes
+#Define CRLF Chr(13) + Chr(10) //Carriage Return Line Feed
+
+//Armazena o último grupo posicionado
+Static cLastGroup := ""
+
+/*/{Protheus.doc} User Function video0222
+Grupos de Produtos
+@author Atilio
+@since 27/05/2025
+@version 1.0
+@type function
+@obs Codigo gerado automaticamente pelo Autumn Code Maker
+@see http://autumncodemaker.com
+@example custom.terminal.youtube.u_video0222()
+/*/
+
+User Function video0222()
+	Local aArea           := FWGetArea()                  As Array
+	Local aParameters     := {}                           As Array
+	Local cFirstId        := Space(TamSX3("BM_GRUPO")[1]) As Character
+	Local cLastId         := StrTran(cFirstId, " ", "Z")  As Character
+	Local cStockWarehouse := Space(TamSX3("B2_LOCAL")[1]) As Character
+
+	//Adicionando os parametros do ParamBox
+	aAdd(aParameters, {1, "Grupo De", cFirstId,  "", ".T.", "SBM", ".T.", 80,  .F.})
+	aAdd(aParameters, {1, "Grupo Até", cLastId,  "", ".T.", "SBM", ".T.", 80,  .T.})
+	aAdd(aParameters, {1, "Armazém", cStockWarehouse,  "", ".T.", "NNR", ".T.", 80,  .T.})
+
+	//Se a pergunta for confirma, chama a tela
+	If ParamBox(aParameters, 'Informe os parâmetros', /*aRet*/, /*bOk*/, /*aButtons*/, /*lCentered*/, /*nPosx*/, /*nPosy*/, /*oDlgWizard*/, /*cLoad*/, .F., .F.)
+		makeDialog()
+	EndIf
+
+	FWRestArea(aArea)
+Return
+
+/*/{Protheus.doc} makeDialog
+Monta a tela com a marcação de dados
+@author Atilio
+@since 27/05/2025
+@version 1.0
+@type function
+@obs Codigo gerado automaticamente pelo Autumn Code Maker
+@see http://autumncodemaker.com
+/*/
+
+Static Function makeDialog()
+    Local aArea               := GetArea()                                          As Array
+    //Barra de Botões
+    Local bCloseBlock         := {|| oDialogTest:End()}                             As CodeBlock
+    Local nWidthButton        := 50                                                 As Numeric
+    //Cabeçalho
+    Private oSayBigText                                                             As Object
+    Private cSayBigText       := 'FAT'                                              As Character
+    Private oSayTitle                                                               As Object
+    Private cSayTitle         := 'Análise do Armazém ' + MV_PAR03                   As Character
+    Private oSaySubtitle                                                            As Object
+    Private cSaySubtitle      := 'Listando Grupos e Produtos'                       As Character
+    //Janela e componentes
+    Private oDialogTest                                                             As Object
+    Private oFwLayer                                                                As Object
+    Private oPanelTitle                                                             As Object
+    Private oPanelButtons                                                           As Object
+    Private oPanelGraphic                                                           As Object
+    //Grupo de produtos
+    Private oPanelGroup                                                             As Object
+    Private oBrowseGroup                                                            As Object
+    Private cAliasGroup       := GetNextAlias()                                     As Character
+    Private aFieldsGroup      := {}                                                 As Array
+    Private aColumnsGroup     := {}                                                 As Array
+    Private oTempTableGroup   := Nil                                                As Object
+    //Produtos e Saldos
+    Private oPanelProduct                                                           As Object
+    Private oBrowseProduct                                                          As Object
+    Private cAliasProduct     := GetNextAlias()                                     As Character
+    Private aFieldsProduct    := {}                                                 As Array
+    Private aColumnsProduct   := {}                                                 As Array
+    Private oTempTableProduct := Nil                                                As Object
+    //Fontes
+    Private cFont             := 'Tahoma'                                           As Character
+    Private oFontBig          := TFont():New(cFont, /*uPar2*/, -38)                 As Object
+    Private oFontTitle        := TFont():New(cFont, /*uPar2*/, -20)                 As Object
+    Private oFontTitleBold    := TFont():New(cFont, /*uPar2*/, -20, /*uPar4*/, .T.) As Object
+    Private oFontDefault      := TFont():New(cFont, /*uPar2*/, -14)                 As Object
+    //Tamanho da janela
+    Private aDialogSize       := MsAdvSize()                                        As Array
+    Private nDialogWidth      := aDialogSize[5]                                     As Numeric
+    Private nDialogHeight     := aDialogSize[6]                                     As Numeric
+
+    //Adiciona as colunas que serão criadas na temporária
+    aAdd(aFieldsGroup, { 'BM_GRUPO', 'C', TamSX3("BM_GRUPO")[1], 0}) //Grupo
+    aAdd(aFieldsGroup, { 'BM_DESC',  'C', TamSX3("BM_DESC")[1],  0}) //Descrição
+
+    aAdd(aFieldsProduct, { 'BM_GRUPO', 'C', TamSX3("BM_GRUPO")[1], 0})                    //Grupo
+    aAdd(aFieldsProduct, { 'B1_COD',   'C', TamSX3("B1_COD")[1],   0})                    //Produto
+    aAdd(aFieldsProduct, { 'B1_DESC',  'C', TamSX3("B1_DESC")[1],  0})                    //Descrição
+    aAdd(aFieldsProduct, { 'B1_TIPO',  'C', TamSX3("B1_TIPO")[1],  0})                    //Tipo
+    aAdd(aFieldsProduct, { 'B1_UM',    'C', TamSX3("B1_UM")[1],    0})                    //Unid. Med.
+    aAdd(aFieldsProduct, { 'B2_QATU',  'N', TamSX3("B2_QATU")[1],  TamSX3("B2_QATU")[2]}) //Saldo
+
+    //Cria a tabela temporária
+    oTempTableGroup:= FWTemporaryTable():New(cAliasGroup)
+    oTempTableGroup:SetFields( aFieldsGroup )
+    oTempTableGroup:AddIndex("1", {"BM_GRUPO"} )
+    oTempTableGroup:Create()
+
+    oTempTableProduct:= FWTemporaryTable():New(cAliasProduct)
+    oTempTableProduct:SetFields( aFieldsProduct )
+    oTempTableProduct:AddIndex("1", {"BM_GRUPO", "B1_COD"} )
+    oTempTableProduct:Create()
+
+    //Popula a tabela temporária
+    Processa({|| insertInTemporary()}, 'Processando...')
+
+    //Adiciona as colunas que serão exibidas no FWBrowse
+    createColumns()
+
+    //Criando a janela
+    oDialogTest := TDialog():New(0, 0, nDialogHeight, nDialogWidth, 'Tela para Consulta de Dados - Autumn Code Maker', , , , , , /*nCorFundo*/, , , .T.)
+
+        //Criando as camadas
+        oFwLayer := FwLayer():New()
+        oFwLayer:init(oDialogTest,.F.)
+
+        //Adicionando 5 linhas
+        oFWLayer:addLine('TITULO', 010, .F.)
+        oFWLayer:addLine('CABECALHO',  038, .F.)
+        oFWLayer:addLine('SEPARACAO', 002, .F.)
+        oFWLayer:addLine('PRODUTOS',  048, .F.)
+        oFWLayer:addLine('RODAPE', 002, .F.)
+
+        //Adicionando as colunas das linhas
+        oFWLayer:addCollumn('HEADERTEXT',   050, .T., 'TITULO')
+        oFWLayer:addCollumn('BLANK',        020, .T., 'TITULO')
+        oFWLayer:addCollumn('BUTTONS',      030, .T., 'TITULO')
+
+        oFWLayer:addCollumn('BLANKANTES',   001, .T., 'CABECALHO')
+        oFWLayer:addCollumn('GRIDGRUP',     047, .T., 'CABECALHO')
+        oFWLayer:addCollumn('BLANKMEIO',    001, .T., 'CABECALHO')
+        oFWLayer:addCollumn('GRAFICO',      050, .T., 'CABECALHO')
+        oFWLayer:addCollumn('BLANKDEPOIS',  001, .T., 'CABECALHO')
+
+        oFWLayer:addCollumn('BLANKANTES',   001, .T., 'PRODUTOS')
+        oFWLayer:addCollumn('GRIDPROD',     098, .T., 'PRODUTOS')
+        oFWLayer:addCollumn('BLANKDEPOIS',  001, .T., 'PRODUTOS')
+
+        //Criando os paineis
+        oPanelHeader   := oFWLayer:GetColPanel('HEADERTEXT', 'TITULO')
+        oPanelButtons  := oFWLayer:GetColPanel('BUTTONS',    'TITULO')
+        oPanelGroup    := oFWLayer:GetColPanel('GRIDGRUP',   'CABECALHO')
+        oPanelGraphic  := oFWLayer:GetColPanel('GRAFICO',    'CABECALHO')
+        oPanelProduct  := oFWLayer:GetColPanel('GRIDPROD',   'PRODUTOS')
+
+        //Títulos e SubTítulos
+        oSayBigText  := TSay():New(004, 003, {|| cSayBigText},  oPanelHeader, '', oFontBig,       , , , .T., RGB(149, 179, 215), , 200, 30, , , , , , .F., , )
+        oSayTitle    := TSay():New(004, 045, {|| cSayTitle},    oPanelHeader, '', oFontTitle,     , , , .T., RGB(031, 073, 125), , 200, 30, , , , , , .F., , )
+        oSaySubtitle := TSay():New(014, 045, {|| cSaySubtitle}, oPanelHeader, '', oFontTitleBold, , , , .T., RGB(031, 073, 125), , 300, 30, , , , , , .F., , )
+
+        //Botões
+        oButtonClose := TButton():New(003, 001 + ((nWidthButton+2)*1), 'Fechar',    oPanelButtons, bCloseBlock, nWidthButton, 018, /*uParam8*/, oFontDefault, /*uParam10*/, .T.)
+
+        //Dados dos Grupos
+        oBrowseGroup := FWBrowse():New()
+        oBrowseGroup:DisableFilter()
+        oBrowseGroup:DisableConfig()
+        oBrowseGroup:DisableReport()
+        oBrowseGroup:DisableSeek()
+        oBrowseGroup:DisableSaveConfig()
+        oBrowseGroup:SetFontBrowse(oFontDefault)
+        oBrowseGroup:SetAlias(cAliasGroup)
+        oBrowseGroup:SetDataTable()
+        oBrowseGroup:SetEditCell(.T., {|| .T.})
+        oBrowseGroup:lHeaderClick := .F.
+        oBrowseGroup:SetColumns(aColumnsGroup)
+        oBrowseGroup:SetOwner(oPanelGroup)
+        oBrowseGroup:bChange := {|| changeGroup()}
+        oBrowseGroup:SetLineHeight(22)
+        oBrowseGroup:Activate()
+
+        //Dados dos Produtos
+        oBrowseProduct := FWBrowse():New()
+        oBrowseProduct:DisableFilter()
+        oBrowseProduct:DisableConfig()
+        oBrowseProduct:DisableReport()
+        oBrowseProduct:DisableSeek()
+        oBrowseProduct:DisableSaveConfig()
+        oBrowseProduct:SetFontBrowse(oFontDefault)
+        oBrowseProduct:SetAlias(cAliasProduct)
+        oBrowseProduct:SetDataTable()
+        oBrowseProduct:SetEditCell(.T., {|| .T.})
+        oBrowseProduct:lHeaderClick := .F.
+        oBrowseProduct:SetColumns(aColumnsProduct)
+        oBrowseProduct:SetOwner(oPanelProduct)
+        oBrowseProduct:Activate()
+
+    oDialogTest:Activate(/*uParam1*/, /*uParam2*/, /*uParam3*/, .T., /*bValid*/, /*uParam6*/, /*bInit*/)
+
+    //Deleta a temporária e desativa a tela de marcação
+    oTempTableGroup:Delete()
+    oBrowseGroup:DeActivate()
+
+    oTempTableProduct:Delete()
+    oBrowseProduct:DeActivate()
+
+    //Limpa o último grupo aberto
+    cLastGroup := ""
+
+    RestArea(aArea)
+Return
+
+/*/{Protheus.doc} insertInTemporary
+Executa a query SQL e popula essa informação na tabela temporária usada no browse
+@author Atilio
+@since 27/05/2025
+@version 1.0
+@type function
+@obs Codigo gerado automaticamente pelo Autumn Code Maker
+@see http://autumncodemaker.com
+/*/
+
+Static Function insertInTemporary()
+    Local cQueryGroup    := '' As Character
+    Local cQueryProduct  := '' As Character
+
+    cQueryGroup := " INSERT INTO " + CRLF
+    cQueryGroup += "      " + oTempTableGroup:GetRealName() + CRLF
+    cQueryGroup += "      (BM_GRUPO, BM_DESC) " + CRLF
+    cQueryGroup += " SELECT " + CRLF
+    cQueryGroup += " 	    BM_GRUPO, " + CRLF
+    cQueryGroup += " 	    BM_DESC " + CRLF
+    cQueryGroup += " FROM " + CRLF
+    cQueryGroup += " 	    " + RetSQLName("SBM") + " SBM " + CRLF
+    cQueryGroup += " 	    INNER JOIN " + RetSQLName("SB1") + " SB1 ON ( " + CRLF
+    cQueryGroup += " 	    	B1_FILIAL = '" + FWxFilial("SB1") + "' " + CRLF
+    cQueryGroup += " 	    	AND B1_GRUPO = BM_GRUPO " + CRLF
+    cQueryGroup += " 	    	AND SB1.D_E_L_E_T_ = ' ' " + CRLF
+    cQueryGroup += " 	    ) " + CRLF
+    cQueryGroup += " 	    INNER JOIN " + RetSQLName("SB2") + " SB2 ON ( " + CRLF
+    cQueryGroup += " 	    	B2_FILIAL = '" + FWxFilial("SB2") + "' " + CRLF
+    cQueryGroup += " 	    	AND B2_COD = B1_COD " + CRLF
+    cQueryGroup += " 	    	AND B2_LOCAL = '" + MV_PAR03 + "' " + CRLF
+    cQueryGroup += " 	    	AND SB2.D_E_L_E_T_ = ' ' " + CRLF
+    cQueryGroup += " 	    ) " + CRLF
+    cQueryGroup += " WHERE " + CRLF
+    cQueryGroup += " 	    BM_FILIAL = '" + FWxFilial("SBM") + "' " + CRLF
+    cQueryGroup += " 	    AND BM_GRUPO >= '" + MV_PAR01 + "' " + CRLF
+    cQueryGroup += " 	    AND BM_GRUPO <= '" + MV_PAR02 + "' " + CRLF
+    cQueryGroup += " 	    AND SBM.D_E_L_E_T_ = ' ' " + CRLF
+    cQueryGroup += " GROUP BY " + CRLF
+    cQueryGroup += " 	    BM_GRUPO, " + CRLF
+    cQueryGroup += " 	    BM_DESC " + CRLF
+    cQueryGroup += " ORDER BY " + CRLF
+    cQueryGroup += " 	    BM_GRUPO " + CRLF
+    u_zExecQry(cQueryGroup)
+
+    cQueryProduct := " INSERT INTO " + CRLF
+    cQueryProduct += "      " + oTempTableProduct:GetRealName() + CRLF
+    cQueryProduct += "      (BM_GRUPO, B1_COD, B1_DESC, B1_TIPO, B1_UM, B2_QATU) " + CRLF
+    cQueryProduct += " SELECT " + CRLF
+    cQueryProduct += "      	BM_GRUPO, " + CRLF
+    cQueryProduct += "      	B1_COD, " + CRLF
+    cQueryProduct += "      	B1_DESC, " + CRLF
+    cQueryProduct += "      	B1_TIPO, " + CRLF
+    cQueryProduct += "      	B1_UM, " + CRLF
+    cQueryProduct += "      	B2_QATU " + CRLF
+    cQueryProduct += " FROM " + CRLF
+    cQueryProduct += "      	" + RetSQLName("SBM") + " SBM " + CRLF
+    cQueryProduct += "      	INNER JOIN " + RetSQLName("SB1") + " SB1 ON ( " + CRLF
+    cQueryProduct += "      		B1_FILIAL = '" + FWxFilial("SB1") + "' " + CRLF
+    cQueryProduct += "      		AND B1_GRUPO = BM_GRUPO " + CRLF
+    cQueryProduct += "      		AND SB1.D_E_L_E_T_ = ' ' " + CRLF
+    cQueryProduct += "      	) " + CRLF
+    cQueryProduct += "      	INNER JOIN " + RetSQLName("SB2") + " SB2 ON ( " + CRLF
+    cQueryProduct += "      		B2_FILIAL = '" + FWxFilial("SB2") + "' " + CRLF
+    cQueryProduct += "      		AND B2_COD = B1_COD " + CRLF
+    cQueryProduct += "      		AND B2_LOCAL = '" + MV_PAR03 + "' " + CRLF
+    cQueryProduct += "      		AND SB2.D_E_L_E_T_ = ' ' " + CRLF
+    cQueryProduct += "      	) " + CRLF
+    cQueryProduct += " WHERE " + CRLF
+    cQueryProduct += "      	BM_FILIAL = '" + FWxFilial("SBM") + "' " + CRLF
+    cQueryProduct += " 	    AND BM_GRUPO >= '" + MV_PAR01 + "' " + CRLF
+    cQueryProduct += " 	    AND BM_GRUPO <= '" + MV_PAR02 + "' " + CRLF
+    cQueryProduct += "      	AND SBM.D_E_L_E_T_ = ' ' " + CRLF
+    cQueryProduct += " ORDER BY " + CRLF
+    cQueryProduct += "      	B2_QATU DESC " + CRLF
+    u_zExecQry(cQueryProduct)
+
+    (cAliasGroup)->(DbGoTop())
+    (cAliasProduct)->(DbGoTop())
+Return
+
+/*/{Protheus.doc} createColumns
+Função que gera as colunas usadas no browse (similar ao antigo aHeader)
+@author Atilio
+@since 27/05/2025
+@version 1.0
+@type function
+@obs Codigo gerado automaticamente pelo Autumn Code Maker
+@see http://autumncodemaker.com
+/*/
+
+Static Function createColumns()
+    Local nCurrent      := 0  As Numeric
+    Local aInfoColumns  := {} As Array
+    Local oColumn             As Object
+
+    //Adicionando campos que serão mostrados na tela
+    //[1] - Campo da Temporaria
+    //[2] - Titulo
+    //[3] - Tipo
+    //[4] - Tamanho
+    //[5] - Decimais
+    //[6] - Máscara
+    //[7] - Editável? .T. = sim, .F. = não
+    //[8] - Código da Consulta Padrão
+    //[9] - Bloco de Código usado na Validação (ex.: {|| fSuaValid()} )
+    aInfoColumns := {}
+    aAdd(aInfoColumns, { 'BM_GRUPO', 'Grupo',     'C', TamSX3('BM_GRUPO')[1], 0, '', .F., Nil, Nil})
+    aAdd(aInfoColumns, { 'BM_DESC',  'Descrição', 'C', TamSX3('BM_DESC')[1],  0, '', .F., Nil, Nil})
+
+    //Percorrendo todos os campos da estrutura
+    For nCurrent := 1 To Len(aInfoColumns)
+        //Cria a coluna
+        oColumn := FWBrwColumn():New()
+        oColumn:SetData(&('{|| ' + cAliasGroup + '->' + aInfoColumns[nCurrent][1] +'}'))
+        oColumn:SetTitle(aInfoColumns[nCurrent][2])
+        oColumn:SetType(aInfoColumns[nCurrent][3])
+        oColumn:SetSize(aInfoColumns[nCurrent][4])
+        oColumn:SetDecimal(aInfoColumns[nCurrent][5])
+        oColumn:SetPicture(aInfoColumns[nCurrent][6])
+
+        //Muda o alinhamento conforme o tipo, Data será Centralizado
+        If aInfoColumns[nCurrent][3] == 'D'
+	oColumn:nAlign := 0
+
+        //Numérico, direita
+        ElseIf aInfoColumns[nCurrent][3] == 'N'
+	oColumn:nAlign := 2
+
+        //Senão, esquerda (caractere)
+        Else
+	oColumn:nAlign := 1
+        EndIf
+
+        //Se for ser possível ter o duplo clique para editar
+        If aInfoColumns[nCurrent][7]
+	oColumn:SetEdit(.T.)
+	oColumn:SetReadVar(cAliasGroup + "->" + aInfoColumns[nCurrent][1])
+
+	//Se tiver Consulta Padrão
+	If ! Empty(aInfoColumns[nCurrent][8])
+		oColumn:xF3 := aInfoColumns[nCurrent][8]
+	EndIf
+
+	//Se tiver Validação
+	If ! Empty(aInfoColumns[nCurrent][9])
+		oColumn:SetValid(aInfoColumns[nCurrent][9])
+	EndIf
+        EndIf
+
+        //Adiciona a coluna
+        aAdd(aColumnsGroup, oColumn)
+    Next
+
+    //Adicionando campos que serão mostrados na tela
+    //[1] - Campo da Temporaria
+    //[2] - Titulo
+    //[3] - Tipo
+    //[4] - Tamanho
+    //[5] - Decimais
+    //[6] - Máscara
+    //[7] - Editável? .T. = sim, .F. = não
+    //[8] - Código da Consulta Padrão
+    //[9] - Bloco de Código usado na Validação (ex.: {|| fSuaValid()} )
+    aInfoColumns := {}
+    aAdd(aInfoColumns, { 'B1_COD',   'Produto',    'C', TamSX3('B1_COD')[1] , 0,                    '', .F., Nil, Nil})
+    aAdd(aInfoColumns, { 'B1_DESC',  'Descrição',  'C', TamSX3('B1_DESC')[1], 0,                    '', .F., Nil, Nil})
+    aAdd(aInfoColumns, { 'B1_TIPO',  'Tipo',       'C', TamSX3('B1_TIPO')[1], 0,                    '', .F., Nil, Nil})
+    aAdd(aInfoColumns, { 'B1_UM',    'Unid. Med.', 'C', TamSX3('B1_UM')[1]  , 0,                    '', .F., Nil, Nil})
+    aAdd(aInfoColumns, { 'B2_QATU',  'Saldo',      'N', TamSX3('B2_QATU')[1], TamSX3('B2_QATU')[2], PesqPict('SB2', 'B2_QATU'), .F., Nil, Nil})
+
+    //Percorrendo todos os campos da estrutura
+    For nCurrent := 1 To Len(aInfoColumns)
+        //Cria a coluna
+        oColumn := FWBrwColumn():New()
+        oColumn:SetData(&('{|| ' + cAliasProduct + '->' + aInfoColumns[nCurrent][1] +'}'))
+        oColumn:SetTitle(aInfoColumns[nCurrent][2])
+        oColumn:SetType(aInfoColumns[nCurrent][3])
+        oColumn:SetSize(aInfoColumns[nCurrent][4])
+        oColumn:SetDecimal(aInfoColumns[nCurrent][5])
+        oColumn:SetPicture(aInfoColumns[nCurrent][6])
+
+        //Muda o alinhamento conforme o tipo, Data será Centralizado
+        If aInfoColumns[nCurrent][3] == 'D'
+	oColumn:nAlign := 0
+
+        //Numérico, direita
+        ElseIf aInfoColumns[nCurrent][3] == 'N'
+	oColumn:nAlign := 2
+
+        //Senão, esquerda (caractere)
+        Else
+	oColumn:nAlign := 1
+        EndIf
+
+        //Se for ser possível ter o duplo clique para editar
+        If aInfoColumns[nCurrent][7]
+	oColumn:SetEdit(.T.)
+	oColumn:SetReadVar(cAliasProduct + "->" + aInfoColumns[nCurrent][1])
+
+	//Se tiver Consulta Padrão
+	If ! Empty(aInfoColumns[nCurrent][8])
+		oColumn:xF3 := aInfoColumns[nCurrent][8]
+	EndIf
+
+	//Se tiver Validação
+	If ! Empty(aInfoColumns[nCurrent][9])
+		oColumn:SetValid(aInfoColumns[nCurrent][9])
+	EndIf
+        EndIf
+
+        //Adiciona a coluna
+        aAdd(aColumnsProduct, oColumn)
+    Next
+Return
+
+Static Function changeGroup()
+    Local cGroupId         := (cAliasGroup)->BM_GRUPO
+    Local cFilterProduct   := cAliasProduct + "->BM_GRUPO == '" + cGroupId + "'"
+
+    //Aplica o filtro no alias de produtos
+    (cAliasProduct)->(DbClearFilter())
+    (cAliasProduct)->(DbSetFilter({|| &(cFilterProduct)}, cFilterProduct))
+    (cAliasProduct)->(DbGoTop())
+
+    //Atualiza a grid
+    If Type("oBrowseProduct") != "U"
+        oBrowseProduct:Refresh(.T.)
+    EndIf
+
+    createGraph()
+Return
+
+Static Function createGraph()
+    Local cGraphTitle := "" As Character
+
+    If cLastGroup != (cAliasGroup)->BM_GRUPO
+        cGraphTitle := Alltrim((cAliasGroup)->BM_DESC)
+
+        //Instância a classe
+        oFWChart := FWChartFactory():New()
+        oFWChart := oFWChart:getInstance(PIECHART)
+
+        //Inicializa pertencendo a janela
+        oFWChart:Init(oPanelGraphic, .T., .T. )
+
+        //Seta o título do gráfico
+        oFWChart:SetTitle(cGraphTitle, CONTROL_ALIGN_CENTER)
+
+        //Adiciona a comparação dos gráficos
+        While ! (cAliasProduct)->(EoF())
+            oFWChart:addSerie((cAliasProduct)->B1_DESC, (cAliasProduct)->B2_QATU)
+            (cAliasProduct)->(DbSkip())
+        EndDo
+        (cAliasProduct)->(DbGoTop())
+
+        //Define que a legenda será mostrada na esquerda
+        oFWChart:setLegend( CONTROL_ALIGN_BOTTOM )
+
+        //Seta a máscara mostrada
+        oFWChart:cPicture := PesqPict('SB2', 'B2_QATU')
+
+        //Seta as cores utilizadas como aleatórias
+        oFWChart:oFWChartColor:SetColor('Random')
+
+        //Constrói o gráfico
+        oFWChart:Build()
+        cLastGroup := (cAliasGroup)->BM_GRUPO
+
+    EndIf
+Return

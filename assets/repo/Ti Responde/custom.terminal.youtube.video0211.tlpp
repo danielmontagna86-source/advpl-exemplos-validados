@@ -1,0 +1,353 @@
+/*
+
+    Esse é um exemplo disponibilizado no Terminal de Informação
+    Confira o artigo sobre esse assunto, no seguinte link: https://terminaldeinformacao.com/2025/12/11/adicionando-uma-marca-dagua-em-um-relatorio-usando-fwmsprinter-ti-responde-0211/
+
+*/
+
+
+//Bibliotecas
+#Include "tlpp-core.th"
+#Include "Totvs.ch"
+#Include "TopConn.ch"
+#Include "RPTDef.ch"
+#Include "FWPrintSetup.ch"
+
+//Declaração da namespace
+Namespace custom.terminal.youtube
+
+//Contantes
+#Define CRLF Chr(13) + Chr(10) //Carriage Return Line Feed
+
+//Alinhamentos
+#Define PAD_LEFT    0
+#Define PAD_RIGHT   1
+#Define PAD_CENTER  2
+#Define PAD_JUSTIFY 3 //Opção disponível somente a partir da versão 1.6.2 da TOTVS Printer
+
+//Cor(es)
+Static nCorCinza := RGB(110, 110, 110)
+Static nCorLinha := RGB(207, 255, 204)
+
+/*/{Protheus.doc} User Function video0211
+Exemplo de quebra com totalizador
+@author Atilio
+@since 15/01/2024
+@version 1.0
+@type function
+@obs Codigo gerado automaticamente pelo Autumn Code Maker
+@see http://autumncodemaker.com
+@example custom.terminal.youtube.u_video0211()
+/*/
+
+User Function video0211()
+	Local aArea         := FWGetArea()                  As Array
+	Local aParameters   := {}                           As Array
+	Local cInitState    := Space(2)                     As Character
+	Local cLastState    := StrTran(cInitState, ' ', 'Z') As Character
+
+	//Adicionando os parametros do ParamBox
+	aAdd(aParameters, {1, "Estado De",  cInitState,  "", ".T.", "12", ".T.", 80,  .F.})
+	aAdd(aParameters, {1, "Estado Até", cLastState,  "", ".T.", "12", ".T.", 80,  .T.})
+
+	//Se a pergunta for confirma, cria o relatorio
+	If ParamBox(aParameters, 'Informe os parâmetros', /*aRet*/, /*bOk*/, /*aButtons*/, /*lCentered*/, /*nPosx*/, /*nPosy*/, /*oDlgWizard*/, /*cLoad*/, .F., .F.)
+		Processa({|| processingReport()})
+	EndIf
+
+	FWRestArea(aArea)
+Return
+
+/*/{Protheus.doc} processingReport
+Faz a impressão do relatório video0211
+@author Atilio
+@since 15/01/2024
+@version 1.0
+@type function
+@obs Codigo gerado automaticamente pelo Autumn Code Maker
+@see http://autumncodemaker.com
+/*/
+
+Static Function processingReport()
+    Local aArea                := FWGetArea()                                                                                                   As Array
+    Local nTotal               := 0                                                                                                             As Numeric
+    Local nCurrent             := 0                                                                                                             As Numeric
+    Local cQuery               := ''                                                                                                            As Character
+    Local cFile                := 'video0211'+RetCodUsr()+'_' + dToS(Date()) + '_' + StrTran(Time(), ':', '-') + '.pdf'                          As Character
+    Private oPrint                                                                                                                          As Object
+    Private oBrush             := TBrush():New(, nCorLinha)                                                                                     As Object
+    Private cTime              := Time()                                                                                                        As Character
+    Private nPage              := 1                                                                                                             As Numeric
+    Private cCompanyLogo       := companyLogo()                                                                                                As Character
+    //Linhas e colunas
+    Private nCurrentLine       := 0                                                                                                             As Numeric
+    Private nBottomLimit       := 800                                                                                                           As Numeric
+    Private nLeftColumn        := 010                                                                                                           As Numeric
+    Private nRightLimit        := 580                                                                                                           As Numeric
+    Private nMiddleColumn      := (nRightLimit-nLeftColumn)/2                                                                               As Numeric
+    //Colunas dos relatorio
+    Private nCityColumn        := nLeftColumn                                                                                                As Numeric
+    Private nNameColumn        := nLeftColumn + 80                                                                                           As Numeric
+    //Declarando as fontes
+    Private cFont              := 'Arial'                                                                                                       As Character
+    Private oFontDetail        := TFont():New(cFont, /*uPar2*/, -11, /*uPar4*/, .F., /*uPar6*/, /*uPar7*/, /*uPar8*/, /*uPar9*/, .F.) As Object
+    Private oFontDetailBold    := TFont():New(cFont, /*uPar2*/, -13, /*uPar4*/, .T., /*uPar6*/, /*uPar7*/, /*uPar8*/, /*uPar9*/, .F.) As Object
+    Private oFontFooter        := TFont():New(cFont, /*uPar2*/, -8,  /*uPar4*/, .F., /*uPar6*/, /*uPar7*/, /*uPar8*/, /*uPar9*/, .F.) As Object
+    Private oFontHeaderColumns := TFont():New(cFont, /*uPar2*/, -7,  /*uPar4*/, .F., /*uPar6*/, /*uPar7*/, /*uPar8*/, /*uPar9*/, .F.) As Object
+    Private oFontTitle         := TFont():New(cFont, /*uPar2*/, -15, /*uPar4*/, .T., /*uPar6*/, /*uPar7*/, /*uPar8*/, /*uPar9*/, .F.) As Object
+    //Variáveis responsáveis pela quebra e total
+    Private cBreakKey          := ""                                                                                                            As Character
+    Private nTotalValue        := 0                                                                                                             As Numeric
+
+    //Monta a consulta de dados
+    cQuery += "SELECT "		+ CRLF
+    cQuery += "    CC2_EST, "		+ CRLF
+    cQuery += "    X5_DESCRI, "		+ CRLF
+    cQuery += "    CC2_CODMUN, "		+ CRLF
+    cQuery += "    CC2_MUN "		+ CRLF
+    cQuery += "FROM "		+ CRLF
+    cQuery += "    " + RetSQLName("CC2") + " CC2 "		+ CRLF
+    cQuery += "    INNER JOIN " + RetSQLName("SX5") + " SX5 ON ( "		+ CRLF
+    cQuery += "        X5_FILIAL = '" + FWxFilial("SX5") + "' "		+ CRLF
+    cQuery += "        AND X5_TABELA = '12' "		+ CRLF
+    cQuery += "        AND X5_CHAVE = CC2_EST "		+ CRLF
+    cQuery += "        AND SX5.D_E_L_E_T_ = ' ' "		+ CRLF
+    cQuery += "    ) "		+ CRLF
+    cQuery += "WHERE "		+ CRLF
+    cQuery += "    CC2_FILIAL = '" + FWxFilial("CC2") + "' "		+ CRLF
+    cQuery += "    AND CC2_EST >= '" + MV_PAR01 + "' "		+ CRLF
+    cQuery += "    AND CC2_EST <= '" + MV_PAR02 + "' "		+ CRLF
+    cQuery += "    AND CC2.D_E_L_E_T_ = ' ' "		+ CRLF
+    cQuery += "ORDER BY "		+ CRLF
+    cQuery += "    CC2_EST, "		+ CRLF
+    cQuery += "    CC2_CODMUN"		+ CRLF
+    PLSQuery(cQuery, 'QRY_AUX')
+
+    //Define o tamanho da régua
+    DbSelectArea('QRY_AUX')
+    QRY_AUX->(DbGoTop())
+    Count to nTotal
+    ProcRegua(nTotal)
+    QRY_AUX->(DbGoTop())
+
+    //Somente se tiver dados
+    If ! QRY_AUX->(EoF())
+        //Criando o objeto de impressao
+        oPrint := FWMSPrinter():New(;
+	cFile,;    // cFilePrinter
+	IMP_PDF,;     // nDevice
+	.F.,;         // lAdjustToLegacy
+	,;            // cPathInServer
+	.T.,;         // lDisabeSetup
+	,;            // lTReport
+	@oPrint,;  // oPrintSetup
+	,;            // cPrinter
+	,;            // lServer
+	,;            // lParam10
+	,;            // lRaw
+	.T.;          // lViewPDF
+        )
+        oPrint:cPathPDF := GetTempPath()
+        oPrint:SetResolution(72)
+        oPrint:SetPortrait()
+        oPrint:SetPaperSize(DMPAPER_A4)
+        oPrint:SetMargin(0, 0, 0, 0)
+
+        //Imprime os dados
+        printHeader()
+        While ! QRY_AUX->(EoF())
+            nCurrent++
+            IncProc('Imprimindo registro ' + cValToChar(nCurrent) + ' de ' + cValToChar(nTotal) + '...')
+
+            //Se atingiu o limite, quebra de pagina
+            validBreak()
+
+            //Aciona a função que valida o totalizador e imprime
+            printTotal()
+
+            //Faz o zebrado ao fundo
+            If nCurrent % 2 == 0
+                oPrint:FillRect({nCurrentLine - 2, nLeftColumn, nCurrentLine + 12, nRightLimit}, oBrush)
+            EndIf
+
+            //Imprime a linha atual
+            oPrint:SayAlign(nCurrentLine, nCityColumn, Alltrim(QRY_AUX->CC2_CODMUN), oFontDetail, 80, 10, /*nClrText*/, PAD_LEFT, /*nAlignVert*/)
+            oPrint:SayAlign(nCurrentLine, nNameColumn, Alltrim(QRY_AUX->CC2_MUN), oFontDetail, 200, 10, /*nClrText*/, PAD_LEFT, /*nAlignVert*/)
+
+            nCurrentLine += 15
+            oPrint:Line(nCurrentLine-3, nLeftColumn, nCurrentLine-3, nRightLimit, nCorCinza)
+
+            //Se atingiu o limite, quebra de pagina
+            validBreak()
+
+            //Incrementa o totalizador, contando uma cidade a mais
+            nTotalValue++
+
+            QRY_AUX->(DbSkip())
+        EndDo
+
+        //Aciona a função que valida o totalizador e imprime uma última vez antes de imprimir o último rodapé
+        printTotal()
+        printFooter()
+
+        oPrint:Preview()
+    Else
+        FWAlertError('Não foi encontrado informações com os parâmetros informados!', 'Atenção')
+    EndIf
+    QRY_AUX->(DbCloseArea())
+
+    FWRestArea(aArea)
+Return
+
+/*/{Protheus.doc} companyLogo
+Função que retorna o logo da empresa conforme configuração da DANFE
+@author Atilio
+@since 15/01/2024
+@version 1.0
+@type function
+@obs Codigo gerado automaticamente pelo Autumn Code Maker
+@see http://autumncodemaker.com
+/*/
+
+Static Function companyLogo()
+    Local cLogo       := '\x_imagens\logo.png' As Character
+Return cLogo
+
+/*/{Protheus.doc} printHeader
+Função que imprime o cabeçalho do relatório
+@author Atilio
+@since 15/01/2024
+@version 1.0
+@type function
+@obs Codigo gerado automaticamente pelo Autumn Code Maker
+@see http://autumncodemaker.com
+/*/
+
+Static Function printHeader()
+    Local cText        := ''      As Character
+    Local nHeaderLine  := 015     As Numeric
+
+    //Iniciando Pagina
+    oPrint:StartPage()
+
+    //Imprime o logo
+    If File(cCompanyLogo)
+        oPrint:SayBitmap(005, nLeftColumn, cCompanyLogo, 030, 030)
+    EndIf
+
+    //Cabecalho
+    cText := 'Listagem de Cidades'
+    oPrint:SayAlign(nHeaderLine, nMiddleColumn-200, cText, oFontTitle, 400, 20, /*nClrText*/, PAD_CENTER, /*nAlignVert*/)
+
+    //Linha Separatoria
+    nHeaderLine += 020
+    oPrint:Line(nHeaderLine,   nLeftColumn, nHeaderLine,   nRightLimit)
+
+    //Atualizando a linha inicial do relatorio
+    nCurrentLine := nHeaderLine + 5
+
+    If nPage == 1
+        //Imprimindo os parâmetros
+        cText := MV_PAR01
+        oPrint:SayAlign(nCurrentLine, nLeftColumn, 'Estado De', oFontDetailBold, 200, 10, /*nClrText*/, PAD_LEFT, /*nAlignVert*/)
+        oPrint:SayAlign(nCurrentLine, nLeftColumn+200, cText, oFontDetail, 200, 10, /*nClrText*/, PAD_LEFT, /*nAlignVert*/)
+        nCurrentLine += 15
+
+        cText := MV_PAR02
+        oPrint:SayAlign(nCurrentLine, nLeftColumn, 'Estado Até', oFontDetailBold, 200, 10, /*nClrText*/, PAD_LEFT, /*nAlignVert*/)
+        oPrint:SayAlign(nCurrentLine, nLeftColumn+200, cText, oFontDetail, 200, 10, /*nClrText*/, PAD_LEFT, /*nAlignVert*/)
+        nCurrentLine += 15
+
+        oPrint:Line(nCurrentLine-3, nLeftColumn, nCurrentLine-3, nRightLimit, nCorCinza)
+        nCurrentLine += 5
+    EndIf
+
+    oPrint:SayAlign(nCurrentLine, nCityColumn, 'Código', oFontHeaderColumns, 80, 10, /*nClrText*/, PAD_LEFT, /*nAlignVert*/)
+    oPrint:SayAlign(nCurrentLine, nNameColumn, 'Nome', oFontHeaderColumns, 200, 10, /*nClrText*/, PAD_LEFT, /*nAlignVert*/)
+    nCurrentLine += 15
+Return
+
+/*/{Protheus.doc} printFooter
+Função que imprime o rodapé e encerra a página
+@author Atilio
+@since 15/01/2024
+@version 1.0
+@type function
+@obs Codigo gerado automaticamente pelo Autumn Code Maker
+@see http://autumncodemaker.com
+/*/
+
+Static Function printFooter()
+    Local nFooterLine := nBottomLimit           As Numeric
+    Local cText       := ''                     As Character
+    Local cWaterMark  := "\x_imagens\marca.png" As Character
+
+    //Imprime a imagem da marca d'agua
+    oPrint:SayBitmap(005, 005, cWaterMark, nRightLimit, nBottomLimit)
+
+    //Linha Separatoria
+    oPrint:Line(nFooterLine,   nLeftColumn, nFooterLine,   nRightLimit)
+    nFooterLine += 3
+
+    //Dados da Esquerda
+    cText := dToC(dDataBase) + '     ' + cTime + '     ' + FunName() + ' (video0211)     ' + UsrRetName(RetCodUsr())
+    oPrint:SayAlign(nFooterLine, nLeftColumn, cText, oFontFooter, 500, 10, /*nClrText*/, PAD_LEFT, /*nAlignVert*/)
+
+    //Direita
+    cText := 'Pagina '+cValToChar(nPage)
+    oPrint:SayAlign(nFooterLine, nRightLimit-40, cText, oFontFooter, 040, 10, /*nClrText*/, PAD_RIGHT, /*nAlignVert*/)
+
+    //Finalizando a pagina e somando mais um
+    oPrint:EndPage()
+    nPage++
+Return
+
+/*/{Protheus.doc} validBreak
+Função que valida se a linha esta próxima do final, se sim quebra a página
+@author Atilio
+@since 15/01/2024
+@version 1.0
+@type function
+@obs Codigo gerado automaticamente pelo Autumn Code Maker
+@see http://autumncodemaker.com
+/*/
+
+Static Function validBreak()
+    If nCurrentLine >= nBottomLimit-10
+        printFooter()
+        printHeader()
+    EndIf
+Return
+
+/*/{Protheus.doc} printTotal
+Função que valida a quebra e imprime as informações do total
+@author Atilio
+@since 15/01/2024
+@version 1.0
+@type function
+/*/
+
+Static Function printTotal()
+    Local nColor := RGB(255, 000, 000) As Numeric
+    Local cText  := ""                 As Character
+
+    //Se estiver no fim do alias (já tiver acabado o while) ou a chave for diferente
+    If QRY_AUX->(EoF()) .Or. cBreakKey != QRY_AUX->CC2_EST
+        //Se tiver chave, irá imprimir o valor total (quantidade de cidades)
+        If ! Empty(cBreakKey)
+            cText := "Quantidade total de cidades: " + Alltrim(Transform(nTotalValue, "@E 999,999"))
+            oPrint:SayAlign(nCurrentLine, nLeftColumn, cText, oFontDetail, 200, 10, nColor, PAD_LEFT, /*nAlignVert*/)
+            nCurrentLine += 15
+        EndIf
+
+        //Se houver dados ainda na query, atualiza a chave, zera o total, e imprime a sigla e nome do estado
+        If ! QRY_AUX->(EoF())
+            cBreakKey := QRY_AUX->CC2_EST
+            nTotalValue := 0
+
+            cText := cBreakKey + " - " + Alltrim(QRY_AUX->X5_DESCRI)
+            oPrint:SayAlign(nCurrentLine, nLeftColumn, cText, oFontDetail, 200, 10, nColor, PAD_LEFT, /*nAlignVert*/)
+            nCurrentLine += 15
+        EndIf
+    EndIf
+Return

@@ -1,0 +1,11 @@
+# SO / editor
+.DS_Store
+Thumbs.db
+*.swp
+
+# Python (build-index.py)
+__pycache__/
+*.pyc
+
+# Estado local de plugin do Claude Code (nunca deve ser versionado)
+.claude-plugin/*.local.json
