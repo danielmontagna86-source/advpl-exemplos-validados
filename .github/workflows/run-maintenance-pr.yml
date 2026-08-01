@@ -1,0 +1,91 @@
+name: Run maintenance on PR
+
+on:
+  pull_request:
+    branches: [main]
+    types: [opened, synchronize, reopened]
+
+permissions:
+  contents: write
+
+jobs:
+  apply-validate-commit:
+    if: github.head_ref == 'chore/plugin-index-style-rules'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.head_ref }}
+          fetch-depth: 0
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Execute maintenance script from bootstrap workflow
+        run: |
+          python -m pip install --quiet pyyaml
+          python - <<'PY'
+          import subprocess
+          import yaml
+          from pathlib import Path
+
+          workflow = yaml.safe_load(Path('.github/workflows/apply-requested-maintenance.yml').read_text(encoding='utf-8'))
+          steps = workflow['jobs']['apply-and-validate']['steps']
+          script = next(step['run'] for step in steps if step.get('name') == 'Apply requested changes')
+          subprocess.run(['python', '-c', script], check=True)
+          PY
+
+      - name: Validate and capture evidence
+        run: |
+          set -euo pipefail
+          {
+            echo '$ python -c "import json;[json.load(open(f)) for f in ['"'"'.claude-plugin/plugin.json'"'"','"'"'.claude-plugin/marketplace.json'"'"']];print('"'"'JSON OK'"'"')"'
+            python -c "import json;[json.load(open(f)) for f in ['.claude-plugin/plugin.json','.claude-plugin/marketplace.json']];print('JSON OK')"
+            echo
+            echo '$ python scripts/build-index.py'
+            python scripts/build-index.py | tee /tmp/build-output.txt
+            cat > /tmp/expected-output.txt <<'EOF'
+          OK: 995 fontes varridos
+            catalogo-fontes.md            : 105 arquivos
+            catalogo-maratona.md          : 552 arquivos
+            catalogo-exemplos-projetos.md : 338 arquivos
+            indice-simbolos.md            : 910 simbolos
+          EOF
+            diff -u /tmp/expected-output.txt /tmp/build-output.txt
+            echo
+            echo '$ grep Len references/indice-simbolos.md'
+            grep -i '^| `Len` | 216 |' references/indice-simbolos.md
+            echo
+            echo '$ determinism check'
+            grep -v 'Gerado por' references/indice-simbolos.md > /tmp/index-first.md
+            PYTHONHASHSEED=random python scripts/build-index.py >/tmp/build-second.txt
+            grep -v 'Gerado por' references/indice-simbolos.md > /tmp/index-second.md
+            diff -u /tmp/index-first.md /tmp/index-second.md
+            echo 'DETERMINISMO OK'
+            echo
+            if ! git diff --quiet -- assets/repo/; then
+              echo 'ERRO: assets/repo/ foi alterado'
+              git diff --stat -- assets/repo/
+              exit 1
+            fi
+            echo 'ASSETS READ-ONLY OK'
+            echo
+            echo '$ git status --short'
+            git status --short
+            echo
+            echo '$ git diff --stat'
+            git diff --stat
+          } | tee validation-output.txt
+
+      - name: Remove bootstrap workflows and commit
+        run: |
+          rm -f .github/workflows/apply-requested-maintenance.yml
+          rm -f .github/workflows/run-maintenance-pr.yml
+          rmdir .github/workflows 2>/dev/null || true
+          rmdir .github 2>/dev/null || true
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add .claude-plugin/plugin.json SKILL.md README.md scripts/build-index.py scripts/update-repo.ps1 scripts/install-adapters.ps1 references .gitattributes validation-output.txt .github
+          git commit -m 'fix: tornar índice determinístico e documentar limitações'
+          git push origin HEAD:chore/plugin-index-style-rules
