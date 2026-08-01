@@ -46,7 +46,7 @@ advpl-exemplos-validados/
 │   ├── update-repo.ps1        # atualiza o corpus e regenera os catálogos
 │   └── install-adapters.ps1   # replica o protocolo para Cline e Codex CLI
 └── assets/
-    └── repo/                   # corpus (snapshot de dan-atilio/AdvPL, GPL-3.0, somente leitura)
+    └── repo/                   # corpus (snapshot de dan-atilio/AdvPL, GPL-3.0, somente leitura pelos agentes)
 ```
 
 ## Instalação
@@ -125,10 +125,11 @@ Este repositório combina dois componentes com licenças diferentes:
 | A skill em si (`SKILL.md`, `scripts/`, `references/`, esta documentação) | [MIT](LICENSE) | Daniel Montagna |
 | Corpus de exemplos (`assets/repo/`) | [GPL-3.0](assets/repo/LICENSE) | Daniel Atílio — [Terminal de Informação](http://terminaldeinformacao.com) |
 
-O corpus é uma cópia read-only, sem modificações, de
-**[github.com/dan-atilio/AdvPL](https://github.com/dan-atilio/AdvPL)**. Todo o crédito pelos ~995
-fontes, anos de conteúdo educacional AdvPL/TLPP e pela série "Maratona de Exemplos" é do Daniel
-Atílio. Se esta skill for útil para você, considere dar uma estrela no
+O corpus é derivado de **[github.com/dan-atilio/AdvPL](https://github.com/dan-atilio/AdvPL)** e é
+mantido como somente leitura pelos agentes. Este snapshot recebeu apenas normalização de whitespace,
+sem alteração de lógica ou conteúdo funcional dos exemplos. Todo o crédito pelos ~995 fontes, anos
+de conteúdo educacional AdvPL/TLPP e pela série "Maratona de Exemplos" é do Daniel Atílio. Se esta
+skill for útil para você, considere dar uma estrela no
 [repositório original](https://github.com/dan-atilio/AdvPL) também.
 
 ## Contribuindo
