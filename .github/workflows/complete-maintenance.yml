@@ -1,9 +1,7 @@
 name: Complete requested maintenance
 
 on:
-  push:
-    branches: [main]
-    paths: [.github/workflows/complete-maintenance.yml]
+  workflow_dispatch:
 
 permissions:
   contents: write
@@ -12,209 +10,36 @@ jobs:
   complete:
     runs-on: ubuntu-latest
     steps:
+      - name: Checkout automation files
+        uses: actions/checkout@v4
+        with:
+          ref: main
+          path: control
+
       - name: Checkout target branch
         uses: actions/checkout@v4
         with:
           ref: chore/plugin-index-style-rules
           fetch-depth: 0
+          path: work
 
-      - name: Apply requested changes
+      - name: Apply and validate requested maintenance
+        working-directory: work
+        run: python ../control/.github/maintenance/apply_requested_maintenance.py
+
+      - name: Show mandatory evidence
+        working-directory: work
         shell: bash
         run: |
-          python - <<'PY'
-          from pathlib import Path
-          import json
-
-          def replace(path, old, new):
-              p = Path(path)
-              s = p.read_text(encoding='utf-8-sig')
-              if old not in s:
-                  raise SystemExit(f'Bloco nao encontrado em {path}: {old[:80]!r}')
-              p.write_text(s.replace(old, new), encoding='utf-8')
-
-          p = Path('.claude-plugin/plugin.json')
-          obj = json.loads(p.read_text(encoding='utf-8-sig'))
-          ordered = {
-              '$schema': 'https://json.schemastore.org/claude-code-plugin-manifest.json',
-              'displayName': 'AdvPL — Exemplos Validados',
-              'skills': ['./'],
-          }
-          ordered.update({k: v for k, v in obj.items() if k not in ordered})
-          p.write_text(json.dumps(ordered, ensure_ascii=False, indent=2) + '\n', encoding='utf-8')
-
-          replace('scripts/build-index.py',
-              'from collections import defaultdict',
-              'from collections import Counter, defaultdict')
-          replace('scripts/build-index.py',
-              '    "constructor", "as", "from", "of", "and", "or", "not", "len", "in",',
-              '    "constructor", "as", "from", "of", "and", "or", "not", "in",')
-          replace('scripts/build-index.py',
-'''    # nome de exibição: variante mais frequente preservando caixa original
-    display = {}
-    for rel, d in info.items():
-        for c in d["calls"]:
-            k = c.lower()
-            if k in sym_files and k not in display:
-                display[k] = c
-''',
-'''    # nome de exibição: variante mais frequente preservando caixa original.
-    # Counter + desempate alfabético para que a saída não dependa da ordem de
-    # iteração de set (PYTHONHASHSEED), que tornava o arquivo não-determinístico.
-    casings = defaultdict(Counter)
-    for rel, d in info.items():
-        for c in d["calls"]:
-            k = c.lower()
-            if k in sym_files:
-                casings[k][c] += 1
-    display = {
-        k: min(cnt.items(), key=lambda kv: (-kv[1], kv[0]))[0]
-        for k, cnt in casings.items()
-    }
-''')
-
-          replace('SKILL.md', '~909 funções/classes', '~910 funções/classes')
-          replace('SKILL.md', '| `TCQuery` / `BeginSql` para SELECT | `FWExecStatement` |',
-                              '| `TCQuery` / `BeginSql` para SELECT | `FWExecStatement` ⚠️ |')
-          replace('SKILL.md',
-'''Divisão de trabalho com skills geradoras de estrutura (MVC, REST, pontos de entrada, queries): elas
-''',
-'''> ⚠️ **Alvos modernos ausentes do corpus.** O corpus é educacional e não cobre toda a API atual.
-> `FWExecStatement` não aparece em nenhum dos 995 fontes. Símbolos marcados com ⚠️ nesta tabela são
-> exceção ao passo 5 do protocolo: valide-os no TDN, não no corpus — a ausência aqui não significa
-> que não existem. (`FWTemporaryTable`, `FWLogMsg`, `FWMsExcel` e `FWRest`, esses sim, estão no corpus.)
-
-Divisão de trabalho com skills geradoras de estrutura (MVC, REST, pontos de entrada, queries): elas
-''')
-          replace('SKILL.md',
-'''## Manutenção
-''',
-'''## Limitações conhecidas
-
-- Índice gerado por regex sobre chamadas de função, não por parser AdvPL — pode ter falsos negativos
-  em sintaxes incomuns (xCommands, chamadas via macro `&()`).
-- Cerca de metade dos símbolos indexados aparece em **um único fonte**. Existência fica bem
-  estabelecida; confirmação de assinatura, nesses casos, merece uma checagem no TDN.
-- O corpus valida a API do framework, não o comportamento detalhado de cada função.
-
-## Manutenção
-''')
-
-          replace('README.md', '909 símbolos', '910 símbolos')
-          replace('README.md',
-'''/reload-plugins
-```
-''',
-'''/reload-plugins
-```
-
-> O `SKILL.md` fica na raiz do repositório: o Claude Code v2.1.142+ carrega esse layout
-> automaticamente como plugin de skill única. O `plugin.json` declara `"skills": ["./"]`
-> explicitamente, o que também cobre versões anteriores. Para conferir a instalação:
-> `claude plugin validate ./advpl-exemplos-validados --strict`.
-''')
-          p = Path('README.md')
-          s = p.read_text(encoding='utf-8')
-          marker = '- A tradução de estilo em `SKILL.md` é apenas ilustrativa — ajuste às regras reais do seu projeto.\n'
-          extra = marker + '''- Cerca de metade dos 910 símbolos indexados aparece em um único fonte: bom para confirmar
-  **existência**, mais fraco para confirmar **assinatura**. Nesses casos, cruze com o TDN.
-- Alvos modernos como `FWExecStatement` não aparecem em nenhum fonte — a skill sinaliza esses
-  casos com ⚠️ para não bloquear o uso deles.
-- O corpus herda binários do repositório original (`escapi.dll`, dois `.rar`, um `.xlsx` de 1,7 MB).
-  `scripts/update-repo.ps1` exclui esses arquivos ao sincronizar.
-'''
-          if marker not in s: raise SystemExit('Marcador README Limitacoes nao encontrado')
-          p.write_text(s.replace(marker, extra), encoding='utf-8')
-
-          replace('scripts/update-repo.ps1',
-'''robocopy $tmpDir $repoDir /MIR /XD ".git" /NFL /NDL /NJH /NJS /NC /NS''',
-'''# /XF: binarios herdados do repo de origem que nao servem para validacao de API
-# e que ninguem quer clonando para dentro de ~\\.claude\\skills (escapi.dll, .rar, planilhas).
-robocopy $tmpDir $repoDir /MIR /XD ".git" /XF "*.dll" "*.exe" "*.rar" "*.zip" "*.xlsx" /NFL /NDL /NJH /NJS /NC /NS''')
-
-          p = Path('scripts/install-adapters.ps1')
-          s = p.read_text(encoding='utf-8-sig')
-          old_header = '''#   Os dois parametros podem ser combinados.
-param(
-    [string]$ClineWorkspace,
-    [switch]$CodexGlobal
-)
-'''
-          new_header = '''#   Os dois parametros podem ser combinados.
-#
-# -StyleRules define as regras de estilo inseridas nos adaptadores. O valor padrao
-# abaixo e apenas UM EXEMPLO: corresponde as regras do autor desta skill. Passe as
-# regras reais do seu projeto; use -StyleRules "" para omitir a secao de regras.
-param(
-    [string]$ClineWorkspace,
-    [switch]$CodexGlobal,
-    [string]$StyleRules = @"
-Protheus.ch->TOTVS.ch | ConOut->FWLogMsg | IIF->If/Else | TCQuery/BeginSql->FWExecStatement |
-CriaTrab->FWTemporaryTable | HTTPGet/Post->FWRest | sem UI em transação | sem GetMV em loop |
-User/Static Function (nunca Function) | sempre D_E_L_E_T_ = ' ' e filtro de filial em query.
-"@
-)
-'''
-          if old_header not in s: raise SystemExit('Cabecalho install-adapters nao encontrado')
-          s = s.replace(old_header, new_header)
-          old_style = '''O corpus valida EXISTÊNCIA e ASSINATURA; o estilo do projeto (CLAUDE.md) prevalece SEMPRE:
-Protheus.ch->TOTVS.ch | ConOut->FWLogMsg | IIF->If/Else | TCQuery/BeginSql->FWExecStatement |
-CriaTrab->FWTemporaryTable | HTTPGet/Post->FWRest | sem UI em transação | sem GetMV em loop |
-User/Static Function (nunca Function) | sempre D_E_L_E_T_ = ' ' e filtro de filial em query.
-'''
-          new_style = '''O corpus valida EXISTÊNCIA e ASSINATURA; o estilo do projeto (CLAUDE.md) prevalece SEMPRE.
-Tabela de tradução em uso (exemplo — ajuste às regras reais do seu time):
-$StyleRules
-
-Alguns alvos modernos (ex.: FWExecStatement) NÃO existem no corpus. Ausência aqui não prova
-inexistência: valide esses casos no TDN antes de descartar.
-'''
-          if old_style not in s: raise SystemExit('Bloco de estilo install-adapters nao encontrado')
-          p.write_text(s.replace(old_style, new_style), encoding='utf-8')
-
-          Path('.gitattributes').write_text('''# O corpus em assets/repo/ e um snapshot read-only em CP1252. Nenhuma conversao
-# de fim de linha deve ser aplicada no checkout: core.autocrlf=true no Windows
-# reescreveria os 995 fontes e sujaria qualquer diff de update-repo.ps1.
-assets/repo/** -text
-
-# Binarios herdados do corpus original.
-*.dll  binary
-*.rar  binary
-*.xlsx binary
-*.png  binary
-''', encoding='utf-8')
-          PY
-
-      - name: Validate JSON
-        run: python -c "import json;[json.load(open(f)) for f in ['.claude-plugin/plugin.json','.claude-plugin/marketplace.json']];print('JSON OK')"
-
-      - name: Build index and validate expected output
-        shell: bash
-        run: |
-          python scripts/build-index.py | tee /tmp/build-output.txt
-          grep -Fx 'OK: 995 fontes varridos' /tmp/build-output.txt
-          grep -Fx '  catalogo-fontes.md            : 105 arquivos' /tmp/build-output.txt
-          grep -Fx '  catalogo-maratona.md          : 552 arquivos' /tmp/build-output.txt
-          grep -Fx '  catalogo-exemplos-projetos.md : 338 arquivos' /tmp/build-output.txt
-          grep -Fx '  indice-simbolos.md            : 910 simbolos' /tmp/build-output.txt
-
-      - name: Validate Len and determinism
-        shell: bash
-        run: |
-          grep -Ei '^\| `Len` \| 216 \|' references/indice-simbolos.md
-          grep -v 'Gerado por' references/indice-simbolos.md > /tmp/index-first.md
-          python scripts/build-index.py > /tmp/build-second.txt
-          grep -v 'Gerado por' references/indice-simbolos.md > /tmp/index-second.md
-          diff -u /tmp/index-first.md /tmp/index-second.md
-          echo 'DETERMINISMO OK'
-
-      - name: Ensure corpus untouched and show status
-        shell: bash
-        run: |
-          test -z "$(git status --porcelain -- assets/repo/)"
+          echo '--- git status --short ---'
           git status --short
+          echo '--- git diff --stat ---'
           git diff --stat
+          echo '--- references changed ---'
+          git status --short -- references/
 
-      - name: Commit generated changes
+      - name: Commit changes to PR branch
+        working-directory: work
         shell: bash
         run: |
           git config user.name 'github-actions[bot]'
