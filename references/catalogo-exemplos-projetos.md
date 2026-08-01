@@ -1,6 +1,6 @@
 # Catálogo — Exemplos, Projetos, Ti Responde, NETiZAP e eBook
 
-> Gerado por `scripts/build-index.py` em 2026-07-11 — NÃO editar manualmente.
+> Gerado por `scripts/build-index.py` em 2026-08-01 — NÃO editar manualmente.
 > Corpus: clone de https://github.com/dan-atilio/AdvPL em `assets/repo/`. Caminhos relativos à raiz do clone.
 > Exemplos estruturais (MVC modelos 1/2/3/X, dialogs, pontos de entrada), projetos completos e soluções pontuais.
 

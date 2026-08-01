@@ -23,7 +23,9 @@ Write-Host "Sincronizando conteudo para $repoDir ..."
 if (-not (Test-Path $repoDir)) {
     New-Item -ItemType Directory -Force -Path $repoDir | Out-Null
 }
-robocopy $tmpDir $repoDir /MIR /XD ".git" /NFL /NDL /NJH /NJS /NC /NS
+# /XF: binarios herdados do repo de origem que nao servem para validacao de API
+# e que ninguem quer clonando para dentro de ~\.claude\skills (escapi.dll, .rar, planilhas).
+robocopy $tmpDir $repoDir /MIR /XD ".git" /XF "*.dll" "*.exe" "*.rar" "*.zip" "*.xlsx" /NFL /NDL /NJH /NJS /NC /NS
 # robocopy usa codigos de saida 0-7 para sucesso; 8+ indica erro real
 if ($LASTEXITCODE -ge 8) {
     Remove-Item -Recurse -Force $tmpDir -ErrorAction SilentlyContinue

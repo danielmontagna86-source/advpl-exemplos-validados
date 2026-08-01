@@ -1,6 +1,6 @@
 # Catálogo — Fontes/ (utilitários z*)
 
-> Gerado por `scripts/build-index.py` em 2026-07-11 — NÃO editar manualmente.
+> Gerado por `scripts/build-index.py` em 2026-08-01 — NÃO editar manualmente.
 > Corpus: clone de https://github.com/dan-atilio/AdvPL em `assets/repo/`. Caminhos relativos à raiz do clone.
 > 105 fontes utilitários prontos, com ProtheusDOC. Leia o arquivo indicado antes de usar/adaptar.
 
