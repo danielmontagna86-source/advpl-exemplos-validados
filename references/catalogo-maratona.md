@@ -1,6 +1,6 @@
 # Catálogo — Maratona de Exemplos (por número e tema)
 
-> Gerado por `scripts/build-index.py` em 2026-07-11 — NÃO editar manualmente.
+> Gerado por `scripts/build-index.py` em 2026-08-01 — NÃO editar manualmente.
 > Corpus: clone de https://github.com/dan-atilio/AdvPL em `assets/repo/`. Caminhos relativos à raiz do clone.
 > 552 exemplos curtos e focados (1 conceito por arquivo): operadores, arrays, strings, datas, arquivos, JSON, SQL, transações.
 

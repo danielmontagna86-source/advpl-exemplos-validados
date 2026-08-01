@@ -18,7 +18,7 @@ Fontes ADVPL são lidos como CP1252 (errors=replace); catálogos gerados em UTF-
 
 import re
 import sys
-from collections import defaultdict
+from collections import Counter, defaultdict
 from datetime import date
 from pathlib import Path
 
@@ -36,7 +36,7 @@ KEYWORDS = {
     "wsservice", "wsstruct", "wsrestful", "data", "case", "endcase",
     "otherwise", "begin", "end", "sequence", "transaction", "new", "self",
     "super", "_super", "include", "define", "ifdef", "ifndef", "endime",
-    "constructor", "as", "from", "of", "and", "or", "not", "len", "in",
+    "constructor", "as", "from", "of", "and", "or", "not", "in",
     # cláusulas de xCommands (não são funções)
     "action", "size", "valid", "with", "init", "use", "pixel", "centered",
     "prompt", "when", "title", "message", "object", "status",
@@ -276,13 +276,19 @@ def main():
                 continue
             sym_files[c.lower()].add(rel)
 
-    # nome de exibição: variante mais frequente preservando caixa original
-    display = {}
+    # nome de exibição: variante mais frequente preservando caixa original.
+    # Counter + desempate alfabético para que a saída não dependa da ordem de
+    # iteração de set (PYTHONHASHSEED), que tornava o arquivo não-determinístico.
+    casings = defaultdict(Counter)
     for rel, d in info.items():
         for c in d["calls"]:
             k = c.lower()
-            if k in sym_files and k not in display:
-                display[k] = c
+            if k in sym_files:
+                casings[k][c] += 1
+    display = {
+        k: min(cnt.items(), key=lambda kv: (-kv[1], kv[0]))[0]
+        for k, cnt in casings.items()
+    }
 
     out = [header(
         "Índice de símbolos — função/classe de framework → fontes que a utilizam",

@@ -37,7 +37,7 @@ advpl-exemplos-validados/
 │   └── plugin.json           # manifesto do plugin
 ├── SKILL.md                  # instruções principais (o que Claude lê)
 ├── references/                # catálogos gerados automaticamente
-│   ├── indice-simbolos.md     #   909 símbolos de framework -> fontes que os usam
+│   ├── indice-simbolos.md     #   910 símbolos de framework -> fontes que os usam
 │   ├── catalogo-fontes.md     #   105 utilitários prontos, por categoria
 │   ├── catalogo-maratona.md   #   552 exemplos curtos, 1 conceito por arquivo
 │   └── catalogo-exemplos-projetos.md  # 338 exemplos estruturais (MVC, EPs, integrações)
@@ -81,6 +81,11 @@ Dentro do Claude Code:
 /plugin install advpl-exemplos-validados@advpl-exemplos-validados
 /reload-plugins
 ```
+
+> O `SKILL.md` fica na raiz do repositório: o Claude Code v2.1.142+ carrega esse layout
+> automaticamente como plugin de skill única. O `plugin.json` declara `"skills": ["./"]`
+> explicitamente, o que também cobre versões anteriores. Para conferir a instalação:
+> `claude plugin validate ./advpl-exemplos-validados --strict`.
 
 Para atualizar depois:
 
@@ -144,3 +149,9 @@ bem-vindos; mudanças no corpus (`assets/repo/`) devem ser propostas no reposit�
 - O corpus é educacional: cobre bem a API do framework, mas não substitui a documentação oficial
   (TDN) para comportamento detalhado de cada função.
 - A tradução de estilo em `SKILL.md` é apenas ilustrativa — ajuste às regras reais do seu projeto.
+- Cerca de metade dos 910 símbolos indexados aparece em um único fonte: bom para confirmar
+  **existência**, mais fraco para confirmar **assinatura**. Nesses casos, cruze com o TDN.
+- Alvos modernos como `FWExecStatement` não aparecem em nenhum fonte — a skill sinaliza esses
+  casos com ⚠️ para não bloquear o uso deles.
+- O corpus herda binários do repositório original (`escapi.dll`, dois `.rar`, um `.xlsx` de 1,7 MB).
+  `scripts/update-repo.ps1` exclui esses arquivos ao sincronizar.

@@ -1,11 +1,11 @@
 # Índice de símbolos — função/classe de framework → fontes que a utilizam
 
-> Gerado por `scripts/build-index.py` em 2026-07-11 — NÃO editar manualmente.
+> Gerado por `scripts/build-index.py` em 2026-08-01 — NÃO editar manualmente.
 > Corpus: clone de https://github.com/dan-atilio/AdvPL em `assets/repo/`. Caminhos relativos à raiz do clone.
 > Uso: antes de usar uma função/classe do Protheus, procure-a aqui (busca case-insensitive). Se estiver listada, leia um dos fontes para confirmar assinatura e uso real. Se NÃO estiver aqui, procure no codebase do projeto e no TDN antes de usar — pode não existir.
 
 
-Total de símbolos distintos: **909** em 995 fontes.
+Total de símbolos distintos: **910** em 995 fontes.
 
 
 ## A
@@ -31,7 +31,7 @@ Total de símbolos distintos: **909** em 995 fontes.
 | `Alias` | 4 | `Maratona de Exemplos/Exemplo_030_Funcao_Alias.prw`, `Maratona de Exemplos/Exemplo_059_Funcao_AvZap.prw`, `Maratona de Exemplos/Exemplo_117_Funcao_DbChangeAlias.prw`, `Maratona de Exemplos/Exemplo_130_Funcao_DbSelectArea.prw` |
 | `AliasCpo` | 2 | `Maratona de Exemplos/Exemplo_031_Funcoes_AliasCPO_e_PrefixoCPO.prw`, `Projetos/Dicionário de Dados/zCriaGat.prw` |
 | `AllToChar` | 4 | `Maratona de Exemplos/Exemplo_032_Funcao_AllToChar.prw`, `Ti Responde/zVid0180.prw`, `Ti Responde/zVid0181.prw`, `eBook - AdvPL e TLPP/zFonte64.prw` |
-| `AllTrim` | 172 | `Exemplos/MVC/zMVCMdX.prw`, `Exemplos/Vídeo Aulas/008 - Manipulação de Banco de Dados/zBanco.prw`, `Exemplos/Vídeo Aulas/010 - Gravação de Registros via RecLock/zGravacao.prw`, `Exemplos/Vídeo Aulas/019 - Validações em MVC/zMod1b.prw` |
+| `Alltrim` | 172 | `Exemplos/MVC/zMVCMdX.prw`, `Exemplos/Vídeo Aulas/008 - Manipulação de Banco de Dados/zBanco.prw`, `Exemplos/Vídeo Aulas/010 - Gravação de Registros via RecLock/zGravacao.prw`, `Exemplos/Vídeo Aulas/019 - Validações em MVC/zMod1b.prw` |
 | `AllUsers` | 2 | `Fontes/zParUsr.prw`, `Fontes/zUsrFil.prw` |
 | `AMIIn` | 1 | `Maratona de Exemplos/Exemplo_034_Funcao_AMIIn.prw` |
 | `annotationExample` | 1 | `eBook - AdvPL e TLPP/custom.book.annotationExample.tlpp` |
@@ -109,7 +109,7 @@ Total de símbolos distintos: **909** em 995 fontes.
 | `cDescric` | 1 | `Ti Responde/zVid0125.prw` |
 | `cDescricao` | 1 | `Ti Responde/custom.terminal.youtube.video0186.tlpp` |
 | `cDescription` | 2 | `Ti Responde/custom.terminal.youtube.video0157.tlpp`, `Ti Responde/custom.terminal.youtube.video0195.tlpp` |
-| `cDoW` | 4 | `Exemplos/Vídeo Aulas/006 - Laços e Testes/zTestes.prw`, `Fontes/zSemanas.prw`, `Maratona de Exemplos/Exemplo_075_Funcao_cDow.prw`, `Maratona de Exemplos/Exemplo_147_Funcao_Dow.prw` |
+| `cDow` | 4 | `Exemplos/Vídeo Aulas/006 - Laços e Testes/zTestes.prw`, `Fontes/zSemanas.prw`, `Maratona de Exemplos/Exemplo_075_Funcao_cDow.prw`, `Maratona de Exemplos/Exemplo_147_Funcao_Dow.prw` |
 | `Ceiling` | 2 | `Maratona de Exemplos/Exemplo_076_Funcoes_Ceiling_Round_e_NoRound.prw`, `Ti Responde/custom.terminal.youtube.video0235.tlpp` |
 | `cEmpr` | 1 | `Ti Responde/zVid0168.prw` |
 | `CenArr2Str` | 2 | `Maratona de Exemplos/Exemplo_170_Funcao_FDatasCum.prw`, `Ti Responde/zVid0189.prw` |
@@ -210,7 +210,7 @@ Total de símbolos distintos: **909** em 995 fontes.
 | `DiffArray` | 1 | `Maratona de Exemplos/Exemplo_142_Funcoes_DiffArray_e_AdmDiffArray.prw` |
 | `DiffDate` | 1 | `Maratona de Exemplos/Exemplo_143_Funcao_DiffDate.prw` |
 | `DifPeriodo` | 1 | `Maratona de Exemplos/Exemplo_052_Funcoes_AtTotHora_e_DifPeriodo.prw` |
-| `directory` | 5 | `Fontes/zImpDoc.prw`, `Fontes/zRecurDir.prw`, `Fontes/zTransPDF.prw`, `Maratona de Exemplos/Exemplo_027_Funcoes_aDir_e_Directory.prw` |
+| `Directory` | 5 | `Fontes/zImpDoc.prw`, `Fontes/zRecurDir.prw`, `Fontes/zTransPDF.prw`, `Maratona de Exemplos/Exemplo_027_Funcoes_aDir_e_Directory.prw` |
 | `DirRemove` | 1 | `Maratona de Exemplos/Exemplo_144_Funcao_DirRemove.prw` |
 | `DisarmTransaction` | 16 | `Exemplos/Vídeo Aulas/010 - Gravação de Registros via RecLock/zGravacao.prw`, `Exemplos/Vídeo Aulas/011 - Gravação de Registros via MsExecAuto/zExecAuto.prw`, `Fontes/zAltSC5.prw`, `Fontes/zCliFor.prw` |
 | `DistanciaGPS` | 1 | `Maratona de Exemplos/Exemplo_145_Funcao_DistanciaGPS.prw` |
@@ -241,7 +241,7 @@ Total de símbolos distintos: **909** em 995 fontes.
 | `ErrorClass` | 3 | `Maratona de Exemplos/custom.terminal.youtube.tryCatch.tlpp`, `Ti Responde/custom.terminal.youtube.video0190.tlpp`, `eBook - AdvPL e TLPP/custom.book.tryCatch.tlpp` |
 | `Escape` | 1 | `Maratona de Exemplos/Exemplo_154_Funcao_Escape.prw` |
 | `Estrut2` | 1 | `Maratona de Exemplos/Exemplo_155_Funcoes_Estrut2_e_FimEstrut2.prw` |
-| `EVal` | 6 | `Exemplos/Vídeo Aulas/003 - Variáveis e Constantes/zVariaveis.prw`, `Fontes/zAltSC5.prw`, `Fontes/zBrw2Exc.prw`, `Ti Responde/zVid0124.prw` |
+| `eVal` | 6 | `Exemplos/Vídeo Aulas/003 - Variáveis e Constantes/zVariaveis.prw`, `Fontes/zAltSC5.prw`, `Fontes/zBrw2Exc.prw`, `Ti Responde/zVid0124.prw` |
 | `ExecBlock` | 2 | `Maratona de Exemplos/Exemplo_156_Funcoes_ExecBlock_e_ExistBlock.prw`, `Ti Responde/zVid0205.prw` |
 | `ExecInDLLClose` | 1 | `Projetos/Integração com WebCam/zPegaWeb.prw` |
 | `ExecInDLLOpen` | 1 | `Projetos/Integração com WebCam/zPegaWeb.prw` |
@@ -249,7 +249,7 @@ Total de símbolos distintos: **909** em 995 fontes.
 | `ExibeHelp` | 6 | `Maratona de Exemplos/Exemplo_297_Funcoes_Help_ExibeHelp_e_ShowHelpDlg.prw`, `Ti Responde/zVid0109.prw`, `Ti Responde/zVid0144.prw`, `Ti Responde/zVid0187.prw` |
 | `ExistBlock` | 3 | `Maratona de Exemplos/Exemplo_156_Funcoes_ExecBlock_e_ExistBlock.prw`, `Ti Responde/custom.terminal.youtube.video0177.tlpp`, `Ti Responde/zVid0205.prw` |
 | `ExistChav` | 1 | `Maratona de Exemplos/Exemplo_157_Funcao_ExistChav.prw` |
-| `ExistCpo` | 3 | `Maratona de Exemplos/Exemplo_158_Funcao_ExistCpo.prw`, `Ti Responde/zVid0123.prw`, `Ti Responde/zVid0125.prw` |
+| `ExistCPO` | 3 | `Maratona de Exemplos/Exemplo_158_Funcao_ExistCpo.prw`, `Ti Responde/zVid0123.prw`, `Ti Responde/zVid0125.prw` |
 | `ExistDir` | 43 | `Fontes/zExcel2DBF.prw`, `Fontes/zExpMail.prw`, `Fontes/zImpSB6.prw`, `Fontes/zMsgLog.prw` |
 | `ExisteSX2` | 3 | `Maratona de Exemplos/Exemplo_160_Funcao_ExisteSX2.prw`, `Maratona de Exemplos/Exemplo_539_Funcao_X31UpdTable.prw`, `Ti Responde/zVid0165.prw` |
 | `ExistFunc` | 1 | `Maratona de Exemplos/Exemplo_161_Funcoes_ExistFunc_e_FindFunction.prw` |
@@ -321,7 +321,7 @@ Total de símbolos distintos: **909** em 995 fontes.
 | `FSeek` | 1 | `Ti Responde/zExporta.prw` |
 | `Ft_FEoF` | 1 | `Fontes/zImpSB6.prw` |
 | `Ft_FGoTop` | 1 | `Fontes/zImpSB6.prw` |
-| `Ft_FLastRec` | 1 | `Fontes/zImpSB6.prw` |
+| `FT_FLastRec` | 1 | `Fontes/zImpSB6.prw` |
 | `Ft_FReadLn` | 1 | `Fontes/zImpSB6.prw` |
 | `Ft_FSkip` | 1 | `Fontes/zImpSB6.prw` |
 | `Ft_FUse` | 1 | `Fontes/zImpSB6.prw` |
@@ -350,7 +350,7 @@ Total de símbolos distintos: **909** em 995 fontes.
 | `FWBrowse` | 18 | `Maratona de Exemplos/Exemplo_207_Classe_FWBrowse.prw`, `Ti Responde/custom.terminal.youtube.video0157.tlpp`, `Ti Responde/custom.terminal.youtube.video0173.tlpp`, `Ti Responde/custom.terminal.youtube.video0186.tlpp` |
 | `FWBrwColumn` | 23 | `Maratona de Exemplos/Exemplo_207_Classe_FWBrowse.prw`, `Maratona de Exemplos/Exemplo_229_Funcao_FWMarkBrowse.prw`, `Ti Responde/custom.terminal.youtube.video0157.tlpp`, `Ti Responde/custom.terminal.youtube.video0169.tlpp` |
 | `FWBrwRelation` | 1 | `Maratona de Exemplos/Exemplo_208_Classe_FWBrwRelation.prw` |
-| `FWBuildFeature` | 14 | `Exemplos/Vídeo Aulas/018 - Modelo 1 em MVC/zModel1.prw`, `Exemplos/Vídeo Aulas/019 - Validações em MVC/zMod1b.prw`, `Exemplos/Vídeo Aulas/020 - Modelo 3 em MVC/zModel3.prw`, `Exemplos/Vídeo Aulas/023 - Pontos de Entrada em MVC/MATA070_pe.prw` |
+| `FwBuildFeature` | 14 | `Exemplos/Vídeo Aulas/018 - Modelo 1 em MVC/zModel1.prw`, `Exemplos/Vídeo Aulas/019 - Validações em MVC/zMod1b.prw`, `Exemplos/Vídeo Aulas/020 - Modelo 3 em MVC/zModel3.prw`, `Exemplos/Vídeo Aulas/023 - Pontos de Entrada em MVC/MATA070_pe.prw` |
 | `FWCalcStruct` | 6 | `Exemplos/MVC/zMVCMdX.prw`, `Exemplos/Vídeo Aulas/021 - Modelo X em MVC/zModelX.prw`, `Ti Responde/zVid0053.prw`, `Ti Responde/zVid0056.prw` |
 | `FWCalendar` | 1 | `Maratona de Exemplos/Exemplo_209_Classe_FWCalendar.prw` |
 | `FWChartBar` | 1 | `Exemplos/Outros/zTstChart.prw` |
@@ -361,7 +361,7 @@ Total de símbolos distintos: **909** em 995 fontes.
 | `FwDefSize` | 2 | `Maratona de Exemplos/Exemplo_214_Classes_FWDefSize_e_FWLayer.prw`, `eBook - AdvPL e TLPP/zFonte35.prw` |
 | `FWDialogModal` | 3 | `Maratona de Exemplos/Exemplo_215_Classe_FWDialogModal.prw`, `Ti Responde/zVid0112.prw`, `Ti Responde/zVid0135.prw` |
 | `FWExecView` | 8 | `Exemplos/Vídeo Aulas/024 - Rotinas automáticas em MVC/zExecView.prw`, `Exemplos/Vídeo Aulas/027 - Cópia em MVC/zCopMVC.prw`, `Fontes/zTelEstr.prw`, `Maratona de Exemplos/Exemplo_216_Funcao_FWExecView.prw` |
-| `FwFileReader` | 15 | `Fontes/zLeIXBLog.prw`, `Fontes/zLog2Excel.prw`, `Fontes/zMiniForm.prw`, `Maratona de Exemplos/Exemplo_217_Classe_FWFileReader.prw` |
+| `FWFileReader` | 15 | `Fontes/zLeIXBLog.prw`, `Fontes/zLog2Excel.prw`, `Fontes/zMiniForm.prw`, `Maratona de Exemplos/Exemplo_217_Classe_FWFileReader.prw` |
 | `FWFileWriter` | 5 | `Fontes/zExpMail.prw`, `Fontes/zMiniForm.prw`, `Maratona de Exemplos/Exemplo_218_Classe_FWFileWriter.prw`, `Ti Responde/zLogGeneric.prw` |
 | `FWFilial` | 3 | `Maratona de Exemplos/Exemplo_236_Classe_FWMsPrinter.prw`, `Maratona de Exemplos/Exemplo_471_Classe_TBrush.prw`, `Ti Responde/zVid0200.prw` |
 | `FWFilialName` | 1 | `Fontes/zConsMark.prw` |
@@ -373,7 +373,7 @@ Total de símbolos distintos: **909** em 995 fontes.
 | `FWFormView` | 35 | `Exemplos/MVC/zMVCMd1.prw`, `Exemplos/MVC/zMVCMd3.prw`, `Exemplos/MVC/zMVCMdX.prw`, `Exemplos/Vídeo Aulas/018 - Modelo 1 em MVC/zModel1.prw` |
 | `FWFormViewStruct` | 6 | `Exemplos/Vídeo Aulas/025 - Modelo 2 em MVC/zModel2.prw`, `Exemplos/Vídeo Aulas/026 - Temporária em MVC/zTmpCad.prw`, `Ti Responde/zVid0022.prw`, `Ti Responde/zVid0038.prw` |
 | `FWGetArea` | 762 | `Fontes/zMiniForm.prw`, `Maratona de Exemplos/Exemplo_001_Operador_Cifrao.prw`, `Maratona de Exemplos/Exemplo_002_Operador_E_Comercial.prw`, `Maratona de Exemplos/Exemplo_003_Operador_Dois_Pontos.prw` |
-| `FWGetDialogSize` | 4 | `Maratona de Exemplos/Exemplo_208_Classe_FWBrwRelation.prw`, `Ti Responde/custom.terminal.youtube.video0156.tlpp`, `Ti Responde/zVid0112.prw`, `Ti Responde/zVid0135.prw` |
+| `FwGetDialogSize` | 4 | `Maratona de Exemplos/Exemplo_208_Classe_FWBrwRelation.prw`, `Ti Responde/custom.terminal.youtube.video0156.tlpp`, `Ti Responde/zVid0112.prw`, `Ti Responde/zVid0135.prw` |
 | `fwGetProfString` | 2 | `Maratona de Exemplos/Exemplo_240_Classe_FWPrintSetup.prw`, `Ti Responde/zVid0147.prw` |
 | `FWGetRunSchedule` | 1 | `Ti Responde/zVid0205.prw` |
 | `FWGetSX5` | 1 | `Maratona de Exemplos/Exemplo_221_Funcoes_FWGetSX5_e_FWPutSX5.prw` |
@@ -426,7 +426,7 @@ Total de símbolos distintos: **909** em 995 fontes.
 | `FWStruTriggger` | 2 | `Maratona de Exemplos/Exemplo_248_Funcao_FWStruTriggger.prw`, `Ti Responde/zVid0038.prw` |
 | `FWSX1Util` | 1 | `Maratona de Exemplos/Exemplo_249_Classe_FWSX1Util.prw` |
 | `FwSX2Util` | 1 | `Maratona de Exemplos/Exemplo_250_Classe_FWSX2Util.prw` |
-| `FwSX3Util` | 2 | `Maratona de Exemplos/Exemplo_251_Classe_FWSX3Util.prw`, `Ti Responde/zVid0099.prw` |
+| `FWSX3Util` | 2 | `Maratona de Exemplos/Exemplo_251_Classe_FWSX3Util.prw`, `Ti Responde/zVid0099.prw` |
 | `FWSX6Util` | 2 | `Maratona de Exemplos/Exemplo_252_Classe_FWSX6Util.prw`, `Maratona de Exemplos/Exemplo_279_Funcoes_GetMV_e_SuperGetMV.prw` |
 | `FWSX9Util` | 1 | `Maratona de Exemplos/Exemplo_253_Classe_FWSX9Util.prw` |
 | `FWTemporaryTable` | 33 | `Maratona de Exemplos/Exemplo_207_Classe_FWBrowse.prw`, `Maratona de Exemplos/Exemplo_214_Classes_FWDefSize_e_FWLayer.prw`, `Maratona de Exemplos/Exemplo_229_Funcao_FWMarkBrowse.prw`, `Maratona de Exemplos/Exemplo_254_Classe_FWTemporaryTable.prw` |
@@ -452,7 +452,7 @@ Total de símbolos distintos: **909** em 995 fontes.
 | `GetAmb` | 1 | `Maratona de Exemplos/Exemplo_334_Funcao_LookUpMod_e_GetAmb.prw` |
 | `GetApoInfo` | 1 | `Maratona de Exemplos/Exemplo_264_Funcao_GetApoInfo.prw` |
 | `GetArea` | 205 | `Exemplos/Dialogs/zExempF1.prw`, `Exemplos/MVC/zMVCMd1.prw`, `Exemplos/MVC/zMVCMd3.prw`, `Exemplos/MVC/zMVCMdX.prw` |
-| `GetAutoGrLog` | 8 | `Fontes/zImpSB6.prw`, `Maratona de Exemplos/Exemplo_053_Funcoes_AutoGrLog_e_GetAutoGrLog.prw`, `Maratona de Exemplos/Exemplo_360_Funcao_MsExecAuto.prw`, `Maratona de Exemplos/Exemplo_535_Classe_WsRestFul.prw` |
+| `GetAutoGRLog` | 8 | `Fontes/zImpSB6.prw`, `Maratona de Exemplos/Exemplo_053_Funcoes_AutoGrLog_e_GetAutoGrLog.prw`, `Maratona de Exemplos/Exemplo_360_Funcao_MsExecAuto.prw`, `Maratona de Exemplos/Exemplo_535_Classe_WsRestFul.prw` |
 | `GetCBSource` | 2 | `Maratona de Exemplos/Exemplo_265_Funcao_GetCBSource.prw`, `Ti Responde/zVid0077.prw` |
 | `GetClientDir` | 1 | `Maratona de Exemplos/Exemplo_267_Funcao_GetClientDir.prw` |
 | `GetClientIP` | 1 | `Maratona de Exemplos/Exemplo_268_Funcao_GetClientIP.prw` |
@@ -566,6 +566,7 @@ Total de símbolos distintos: **909** em 995 fontes.
 | `LastDayWeek` | 1 | `Maratona de Exemplos/Exemplo_322_Funcao_LastDayWeek.prw` |
 | `LastRec` | 1 | `Ti Responde/zVid0113.prw` |
 | `Left` | 10 | `Maratona de Exemplos/Exemplo_323_Funcao_Left.prw`, `Maratona de Exemplos/Exemplo_492_Funcoes_ThisInv_e_ThisMark.prw`, `Ti Responde/custom.terminal.youtube.video0155.tlpp`, `Ti Responde/zVid0068.prw` |
+| `Len` | 216 | `Exemplos/MVC/zMVCMdX.prw`, `Exemplos/Outros/zTstExcel.prw`, `Exemplos/Outros/zTstXML.prw`, `Exemplos/Vídeo Aulas/023 - Pontos de Entrada em MVC/OS010BTN.prw` |
 | `LeTXT` | 1 | `Maratona de Exemplos/Exemplo_325_Funcao_LeTXT.prw` |
 | `LimSemana` | 1 | `Maratona de Exemplos/Exemplo_326_Funcao_LimSemana.prw` |
 | `LinDelet` | 1 | `Maratona de Exemplos/Exemplo_327_Funcao_LinDelet.prw` |
@@ -604,7 +605,7 @@ Total de símbolos distintos: **909** em 995 fontes.
 | `MaPvlNfs` | 1 | `Maratona de Exemplos/Exemplo_339_Funcao_MaPvlNfs.prw` |
 | `MATA010` | 10 | `Exemplos/Vídeo Aulas/007 - Tipos de Funções/zTpFuncA.prw`, `Exemplos/Vídeo Aulas/011 - Gravação de Registros via MsExecAuto/zExecAuto.prw`, `Fontes/zInicio.prw`, `Maratona de Exemplos/Exemplo_355_Funcao_MostraErro.prw` |
 | `Mata030` | 1 | `Fontes/zCliFor.prw` |
-| `MATA103` | 3 | `Fontes/zDelDoc.prw`, `Fontes/zImpSB6.prw`, `Ti Responde/zVid0122.prw` |
+| `Mata103` | 3 | `Fontes/zDelDoc.prw`, `Fontes/zImpSB6.prw`, `Ti Responde/zVid0122.prw` |
 | `MATA120` | 2 | `Ti Responde/custom.terminal.youtube.video0178.tlpp`, `Ti Responde/zVid0185.prw` |
 | `MATA140` | 2 | `Fontes/zDelDoc.prw`, `Ti Responde/zVid0013.prw` |
 | `Mata216` | 1 | `Fontes/zImpSB6.prw` |
@@ -652,11 +653,11 @@ Total de símbolos distintos: **909** em 995 fontes.
 | `MSCBPrinter` | 2 | `Maratona de Exemplos/Exemplo_358_Funcao_MSCBPrinter.prw`, `Ti Responde/zVid0161.prw` |
 | `MSCBSay` | 2 | `Maratona de Exemplos/Exemplo_358_Funcao_MSCBPrinter.prw`, `Ti Responde/zVid0161.prw` |
 | `MSCBWrite` | 1 | `Ti Responde/zVid0161.prw` |
-| `msClosePort` | 1 | `Fontes/zLeBalanca.prw` |
+| `MSClosePort` | 1 | `Fontes/zLeBalanca.prw` |
 | `MsDate` | 1 | `Ti Responde/zVid0205.prw` |
 | `MsDocument` | 1 | `Maratona de Exemplos/Exemplo_359_Funcao_MsDocument.prw` |
 | `MsExcel` | 9 | `Exemplos/Outros/zTstExcel.prw`, `Fontes/zBrw2Exc.prw`, `Fontes/zLog2Excel.prw`, `Fontes/zQry2Excel.prw` |
-| `MsExecAuto` | 22 | `Exemplos/Vídeo Aulas/011 - Gravação de Registros via MsExecAuto/zExecAuto.prw`, `Fontes/zCliFor.prw`, `Fontes/zDelDoc.prw`, `Fontes/zGeraB9.prw` |
+| `MSExecAuto` | 22 | `Exemplos/Vídeo Aulas/011 - Gravação de Registros via MsExecAuto/zExecAuto.prw`, `Fontes/zCliFor.prw`, `Fontes/zDelDoc.prw`, `Fontes/zGeraB9.prw` |
 | `MsgAlert` | 19 | `Exemplos/Vídeo Aulas/003 - Variáveis e Constantes/zConstantes.prw`, `Exemplos/Vídeo Aulas/023 - Pontos de Entrada em MVC/OS010BTN.prw`, `Exemplos/Vídeo Aulas/025 - Modelo 2 em MVC/ASATF04.prw`, `Fontes/zConsArr.prw` |
 | `MsgInfo` | 50 | `Exemplos/Vídeo Aulas/002 - Conceitos Básicos/zCorpo.prw`, `Exemplos/Vídeo Aulas/007 - Tipos de Funções/zTpFuncA.prw`, `Exemplos/Vídeo Aulas/007 - Tipos de Funções/zTpFuncB.prw`, `Exemplos/Vídeo Aulas/009 - Utilizando Índices e Posicionamento/zIndPos.prw` |
 | `MsgNoYes` | 1 | `Maratona de Exemplos/Exemplo_204_Funcoes_FWAlertYesNo_FWAlertNoYes_MsgYesNo_e_MsgNoYes.prw` |
@@ -669,7 +670,7 @@ Total de símbolos distintos: **909** em 995 fontes.
 | `MsNewProcess` | 1 | `Maratona de Exemplos/Exemplo_364_Classe_MsNewProcess.prw` |
 | `MSOpenPort` | 1 | `Fontes/zLeBalanca.prw` |
 | `MsProcTxt` | 2 | `Fontes/zExpPars.prw`, `Maratona de Exemplos/Exemplo_357_Funcao_MSAguarde.prw` |
-| `msRead` | 1 | `Fontes/zLeBalanca.prw` |
+| `MSRead` | 1 | `Fontes/zLeBalanca.prw` |
 | `MsSeek` | 52 | `Maratona de Exemplos/Exemplo_021_Funcao_a460Estorna.prw`, `Maratona de Exemplos/Exemplo_058_Funcao_AvKey.prw`, `Maratona de Exemplos/Exemplo_070_Funcao_CalcEst.prw`, `Maratona de Exemplos/Exemplo_120_Funcoes_DbCommit_e_DbCommitAll.prw` |
 | `MsSelect` | 2 | `Fontes/zConsMark.prw`, `Fontes/zParUsr.prw` |
 | `MsUnlock` | 75 | `Exemplos/Vídeo Aulas/010 - Gravação de Registros via RecLock/zGravacao.prw`, `Exemplos/Vídeo Aulas/019 - Validações em MVC/zMod1b.prw`, `Exemplos/Vídeo Aulas/022 - MarkBrowse em MVC/zMkMVC.prw`, `Exemplos/Vídeo Aulas/025 - Modelo 2 em MVC/zModel2.prw` |
@@ -735,7 +736,7 @@ Total de símbolos distintos: **909** em 995 fontes.
 | `PesqPict` | 14 | `Exemplos/Vídeo Aulas/023 - Pontos de Entrada em MVC/OS010BTN.prw`, `Exemplos/Vídeo Aulas/025 - Modelo 2 em MVC/ASATF04.prw`, `Fontes/zConsEsp.prw`, `Fontes/zConsMark.prw` |
 | `PivotTable` | 1 | `Maratona de Exemplos/Exemplo_386_Funcao_PivotTable.prw` |
 | `PLSDifAnos` | 1 | `Maratona de Exemplos/Exemplo_387_Funcao_PLSDifAnos.prw` |
-| `PlsQuery` | 41 | `Fontes/zExpMail.prw`, `Maratona de Exemplos/Exemplo_229_Funcao_FWMarkBrowse.prw`, `Maratona de Exemplos/Exemplo_234_Classes_FWMsExcel_FWMsExcelXLSX_e_MsExcel.prw`, `Maratona de Exemplos/Exemplo_236_Classe_FWMsPrinter.prw` |
+| `PLSQuery` | 41 | `Fontes/zExpMail.prw`, `Maratona de Exemplos/Exemplo_229_Funcao_FWMarkBrowse.prw`, `Maratona de Exemplos/Exemplo_234_Classes_FWMsExcel_FWMsExcelXLSX_e_MsExcel.prw`, `Maratona de Exemplos/Exemplo_236_Classe_FWMsPrinter.prw` |
 | `PorEncode` | 1 | `Maratona de Exemplos/Exemplo_329_Funcoes_Lj904XWC_PorEncode_e_WCDecode.prw` |
 | `Posicione` | 4 | `Exemplos/Vídeo Aulas/009 - Utilizando Índices e Posicionamento/zIndPos.prw`, `Maratona de Exemplos/Exemplo_209_Classe_FWCalendar.prw`, `Maratona de Exemplos/Exemplo_390_Funcao_Posicione.prw`, `eBook - AdvPL e TLPP/zFonte59.prw` |
 | `Positivo` | 1 | `Maratona de Exemplos/Exemplo_391_Funcao_Positivo.prw` |
@@ -868,7 +869,7 @@ Total de símbolos distintos: **909** em 995 fontes.
 | `StartJob` | 1 | `Ti Responde/zVid0193.prw` |
 | `StaticCall` | 5 | `Exemplos/Vídeo Aulas/007 - Tipos de Funções/zTpFuncA.prw`, `Exemplos/Vídeo Aulas/024 - Rotinas automáticas em MVC/zRotAuto.prw`, `Fontes/zGerDanfe.prw`, `Fontes/zLibPed.prw` |
 | `sToD` | 61 | `Exemplos/Outros/zTstExcel.prw`, `Exemplos/Vídeo Aulas/015 - Orientação a Objetos/zCadPessoa.prw`, `Fontes/zDelDoc.prw`, `Fontes/zDiasUteis.prw` |
-| `Str` | 2 | `Maratona de Exemplos/Exemplo_456_Funcao_Str.prw`, `Ti Responde/zVid0205.prw` |
+| `STR` | 2 | `Maratona de Exemplos/Exemplo_456_Funcao_Str.prw`, `Ti Responde/zVid0205.prw` |
 | `StrDelChr` | 1 | `Maratona de Exemplos/Exemplo_457_Funcao_StrDelChr.prw` |
 | `StrIConv` | 1 | `Maratona de Exemplos/Exemplo_458_Funcao_StrIConv.prw` |
 | `String_To_QQTipo` | 1 | `Maratona de Exemplos/Exemplo_459_Funcoes_String_To_QQTipo_e_QQTipo_To_String.prw` |
@@ -908,7 +909,7 @@ Total de símbolos distintos: **909** em 995 fontes.
 | `TCSetField` | 12 | `Exemplos/Outros/zTstExcel.prw`, `Fontes/zAppend.prw`, `Fontes/zConsEsp.prw`, `Fontes/zConsMark.prw` |
 | `TCSPExec` | 1 | `Maratona de Exemplos/Exemplo_481_Funcao_TCSPExec.prw` |
 | `TCSQLError` | 7 | `Maratona de Exemplos/Exemplo_476_Funcoes_TCLink_e_TCUnlink.prw`, `Maratona de Exemplos/Exemplo_482_Funcoes_TCSQLExec_e_TCSQLError.prw`, `Maratona de Exemplos/Exemplo_483_Funcao_TCSqlPlan.prw`, `Maratona de Exemplos/Exemplo_485_Funcao_TCSqlToArr.prw` |
-| `TcSqlExec` | 7 | `Fontes/zAppend.prw`, `Maratona de Exemplos/Exemplo_476_Funcoes_TCLink_e_TCUnlink.prw`, `Maratona de Exemplos/Exemplo_482_Funcoes_TCSQLExec_e_TCSQLError.prw`, `Maratona de Exemplos/Exemplo_520_Funcao_UserException.prw` |
+| `TCSqlExec` | 7 | `Fontes/zAppend.prw`, `Maratona de Exemplos/Exemplo_476_Funcoes_TCLink_e_TCUnlink.prw`, `Maratona de Exemplos/Exemplo_482_Funcoes_TCSQLExec_e_TCSQLError.prw`, `Maratona de Exemplos/Exemplo_520_Funcao_UserException.prw` |
 | `TCSqlPlan` | 1 | `Maratona de Exemplos/Exemplo_483_Funcao_TCSqlPlan.prw` |
 | `TCSqlReplay` | 1 | `Maratona de Exemplos/Exemplo_484_Funcao_TCSqlReplay.prw` |
 | `TCSqlToArr` | 1 | `Maratona de Exemplos/Exemplo_485_Funcao_TCSqlToArr.prw` |
@@ -930,7 +931,7 @@ Total de símbolos distintos: **909** em 995 fontes.
 | `TkSX3Box` | 2 | `Maratona de Exemplos/Exemplo_540_Funcoes_X3CBox_TkSX3Box_e_x3CboxToArray.prw`, `Ti Responde/zVid0136.prw` |
 | `TListBox` | 1 | `Maratona de Exemplos/Exemplo_496_Classe_TListBox.prw` |
 | `tMailManager` | 3 | `Fontes/zBxMail.prw`, `Fontes/zEnvMail.prw`, `Maratona de Exemplos/Exemplo_497_Classes_TMailMessage_e_TMailManager.prw` |
-| `tMailMessage` | 3 | `Fontes/zBxMail.prw`, `Fontes/zEnvMail.prw`, `Maratona de Exemplos/Exemplo_497_Classes_TMailMessage_e_TMailManager.prw` |
+| `TMailMessage` | 3 | `Fontes/zBxMail.prw`, `Fontes/zEnvMail.prw`, `Maratona de Exemplos/Exemplo_497_Classes_TMailMessage_e_TMailManager.prw` |
 | `TMediaPlayer` | 1 | `Maratona de Exemplos/Exemplo_498_Classe_TMediaPlayer.prw` |
 | `TMenu` | 2 | `Maratona de Exemplos/Exemplo_511_Classe_TSystemTray.prw`, `Ti Responde/zVid0083.prw` |
 | `TMenuItem` | 2 | `Maratona de Exemplos/Exemplo_511_Classe_TSystemTray.prw`, `Ti Responde/zVid0083.prw` |
@@ -950,7 +951,7 @@ Total de símbolos distintos: **909** em 995 fontes.
 | `TRPosition` | 1 | `Ti Responde/zVid0205.prw` |
 | `TRSection` | 10 | `Fontes/zCompX3XG.prw`, `Maratona de Exemplos/Exemplo_505_Classes_TReport_TRFunction_TRSection_e_TRCell.prw`, `Ti Responde/custom.terminal.youtube.video0166.tlpp`, `Ti Responde/custom.terminal.youtube.video0220.tlpp` |
 | `TSay` | 36 | `Maratona de Exemplos/Exemplo_134_Classe_DBTree.prw`, `Maratona de Exemplos/Exemplo_209_Classe_FWCalendar.prw`, `Maratona de Exemplos/Exemplo_214_Classes_FWDefSize_e_FWLayer.prw`, `Maratona de Exemplos/Exemplo_241_Classe_FWQRCode.prw` |
-| `tSimpleEditor` | 2 | `Fontes/zIsMVC.prw`, `Maratona de Exemplos/Exemplo_509_Classe_TSimpleEditor.prw` |
+| `TSimpleEditor` | 2 | `Fontes/zIsMVC.prw`, `Maratona de Exemplos/Exemplo_509_Classe_TSimpleEditor.prw` |
 | `TSpinBox` | 1 | `Maratona de Exemplos/Exemplo_510_Classe_TSpinBox.prw` |
 | `TSystemTray` | 2 | `Maratona de Exemplos/Exemplo_511_Classe_TSystemTray.prw`, `Ti Responde/zVid0083.prw` |
 | `TTGetStru` | 1 | `Maratona de Exemplos/Exemplo_512_Funcao_TTGetStru.prw` |

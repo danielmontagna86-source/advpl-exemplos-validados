@@ -1,4 +1,4 @@
-﻿# install-adapters.ps1 - Instala a regra da skill advpl-exemplos-validados em outras ferramentas de IA.
+# install-adapters.ps1 - Instala a regra da skill advpl-exemplos-validados em outras ferramentas de IA.
 #
 # Uso:
 #   powershell -File install-adapters.ps1 -ClineWorkspace "c:\Users\...\Documents\Fontes"
@@ -6,9 +6,18 @@
 #   powershell -File install-adapters.ps1 -CodexGlobal
 #       -> insere/atualiza secao delimitada em ~\.codex\AGENTS.md (OpenAI Codex CLI)
 #   Os dois parametros podem ser combinados.
+#
+# -StyleRules define as regras de estilo inseridas nos adaptadores. O valor padrao
+# abaixo e apenas UM EXEMPLO: corresponde as regras do autor desta skill. Passe as
+# regras reais do seu projeto; use -StyleRules "" para omitir a secao de regras.
 param(
     [string]$ClineWorkspace,
-    [switch]$CodexGlobal
+    [switch]$CodexGlobal,
+    [string]$StyleRules = @"
+Protheus.ch->TOTVS.ch | ConOut->FWLogMsg | IIF->If/Else | TCQuery/BeginSql->FWExecStatement |
+CriaTrab->FWTemporaryTable | HTTPGet/Post->FWRest | sem UI em transação | sem GetMV em loop |
+User/Static Function (nunca Function) | sempre D_E_L_E_T_ = ' ' e filtro de filial em query.
+"@
 )
 $ErrorActionPreference = "Stop"
 
@@ -40,10 +49,12 @@ Para cada função/classe/método do framework Protheus que o código precisar:
 
 ## Precedência de estilo
 
-O corpus valida EXISTÊNCIA e ASSINATURA; o estilo do projeto (CLAUDE.md) prevalece SEMPRE:
-Protheus.ch->TOTVS.ch | ConOut->FWLogMsg | IIF->If/Else | TCQuery/BeginSql->FWExecStatement |
-CriaTrab->FWTemporaryTable | HTTPGet/Post->FWRest | sem UI em transação | sem GetMV em loop |
-User/Static Function (nunca Function) | sempre D_E_L_E_T_ = ' ' e filtro de filial em query.
+O corpus valida EXISTÊNCIA e ASSINATURA; o estilo do projeto (CLAUDE.md) prevalece SEMPRE.
+Tabela de tradução em uso (exemplo — ajuste às regras reais do seu time):
+$StyleRules
+
+Alguns alvos modernos (ex.: FWExecStatement) NÃO existem no corpus. Ausência aqui não prova
+inexistência: valide esses casos no TDN antes de descartar.
 
 Nunca edite arquivos do corpus. Encoding dos fontes: CP1252. Não copie arquivos inteiros verbatim (GPL-3.0) — adapte.
 "@

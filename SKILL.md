@@ -58,7 +58,7 @@ Para CADA símbolo de framework (função, classe, método) que o código a gera
 
 | Referência | Quando ler | Conteúdo |
 | --- | --- | --- |
-| [references/indice-simbolos.md](references/indice-simbolos.md) | **Sempre** que precisar validar um símbolo de framework | Índice invertido: ~909 funções/classes → fontes que as usam (com contagem de usos) |
+| [references/indice-simbolos.md](references/indice-simbolos.md) | **Sempre** que precisar validar um símbolo de framework | Índice invertido: ~910 funções/classes → fontes que as usam (com contagem de usos) |
 | [references/catalogo-fontes.md](references/catalogo-fontes.md) | Precisa de um **utilitário pronto** (e-mail, Excel, FTP, validação, arquivos, SQL→Excel...) | 105 funções `z*` completas com ProtheusDOC, agrupadas por categoria |
 | [references/catalogo-maratona.md](references/catalogo-maratona.md) | Precisa de exemplo **focado em 1 conceito** (operador, função de array/string/data, classe visual) | 552 exemplos numerados `Exemplo_NNN_Tema.prw` |
 | [references/catalogo-exemplos-projetos.md](references/catalogo-exemplos-projetos.md) | Precisa de exemplo **estrutural**: MVC (modelos 1/2/3/X), dialogs, pontos de entrada, integração WhatsApp, projetos completos | 338 fontes de Exemplos/, Projetos/, Ti Responde/, NETiZAP/ e eBook/ |
@@ -85,11 +85,16 @@ seu time — isto NÃO é uma lista fixa, é só um exemplo de tipo de traduçã
 | `#Include "Protheus.ch"` | `#Include "TOTVS.ch"` |
 | `ConOut()` / `?` para log | `FWLogMsg()` |
 | `IIF(cond, a, b)` | `If/Else/EndIf` explícito |
-| `TCQuery` / `BeginSql` para SELECT | `FWExecStatement` |
+| `TCQuery` / `BeginSql` para SELECT | `FWExecStatement` ⚠️ |
 | Query com valores concatenados | Query parametrizada |
 | `CriaTrab()` / `MSCREATE()` / `DBCREATE()` | `FWTemporaryTable` |
 | `HTTPGet()` / `HTTPPost()` / `HTTPQuote()` | `FWRest` |
 | `Function Xxx()` em customização | `User Function` (pública) ou `Static Function` |
+
+> ⚠️ **Alvos modernos ausentes do corpus.** O corpus é educacional e não cobre toda a API atual.
+> `FWExecStatement` não aparece em nenhum dos 995 fontes. Símbolos marcados com ⚠️ nesta tabela são
+> exceção ao passo 5 do protocolo: valide-os no TDN, não no corpus — a ausência aqui não significa
+> que não existem. (`FWTemporaryTable`, `FWLogMsg`, `FWMsExcel` e `FWRest`, esses sim, estão no corpus.)
 
 Divisão de trabalho com skills geradoras de estrutura (MVC, REST, pontos de entrada, queries): elas
 geram a **estrutura**; esta skill **valida os símbolos** e fornece **uso real**. Use as duas juntas.
@@ -106,6 +111,14 @@ geram a **estrutura**; esta skill **valida os símbolos** e fornece **uso real**
 - **Pontos de entrada** (`Exemplos/Pontos de Entrada/`, `Exemplos/Vídeo Aulas/`): incluindo EPs em MVC
 - **Classes visuais** (Maratona 400+): TDialog, TButton, FWBrowse, FWMsExcel, FWChartBar, TBitmap
 - **Integração** (`NETiZAP/`): consumo de API REST (WhatsApp) de ponta a ponta
+
+## Limitações conhecidas
+
+- Índice gerado por regex sobre chamadas de função, não por parser AdvPL — pode ter falsos negativos
+  em sintaxes incomuns (xCommands, chamadas via macro `&()`).
+- Cerca de metade dos símbolos indexados aparece em **um único fonte**. Existência fica bem
+  estabelecida; confirmação de assinatura, nesses casos, merece uma checagem no TDN.
+- O corpus valida a API do framework, não o comportamento detalhado de cada função.
 
 ## Manutenção
 

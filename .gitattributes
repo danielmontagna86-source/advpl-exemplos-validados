@@ -1,0 +1,10 @@
+# O corpus em assets/repo/ e um snapshot read-only em CP1252. Nenhuma conversao
+# de fim de linha deve ser aplicada no checkout: core.autocrlf=true no Windows
+# reescreveria os 995 fontes e sujaria qualquer diff de update-repo.ps1.
+assets/repo/** -text
+
+# Binarios herdados do corpus original.
+*.dll  binary
+*.rar  binary
+*.xlsx binary
+*.png  binary
