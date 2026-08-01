@@ -1,0 +1,33 @@
+name: Delete residual branch
+
+on:
+  push:
+    branches: [main]
+    paths: [.github/workflows/delete-residual-branch.yml]
+
+permissions:
+  contents: write
+
+jobs:
+  cleanup:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout main
+        uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
+
+      - name: Delete residual branch
+        shell: bash
+        run: |
+          git push origin --delete chore/plugin-index-style-rules
+
+      - name: Remove temporary workflow
+        shell: bash
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git rm .github/workflows/delete-residual-branch.yml
+          git commit -m 'Remover workflow temporário de limpeza da branch'
+          git push origin main
