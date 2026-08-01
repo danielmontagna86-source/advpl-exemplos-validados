@@ -1,5 +1,8 @@
 {
   "name": "advpl-exemplos-validados",
+  "$schema": "https://json.schemastore.org/claude-code-plugin-manifest.json",
+  "displayName": "AdvPL — Exemplos Validados",
+  "skills": ["./"],
   "description": "Corpus local de ~995 fontes AdvPL/TLPP reais (dan-atilio/AdvPL) para validar existência e assinatura de funções/classes do Protheus antes de gerar código com IA, evitando alucinação de API.",
   "version": "1.0.0",
   "author": {
